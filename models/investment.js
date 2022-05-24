@@ -15,6 +15,10 @@ const InvestmentSchema = new Schema(
       required: [true, 'Please provide amount'],
       default: 3000,
     },
+    incrementAmount: {
+      type: Number,
+      default: 0,
+    },
     user: {
       type: Schema.Types.ObjectId,
       require: [true, 'Please provide investor'],

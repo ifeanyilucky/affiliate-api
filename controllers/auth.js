@@ -8,11 +8,13 @@ const {
   NotFoundError,
 } = require('../errors');
 const sendEmail = require('../utils/sendEmail');
+const shortid = require('shortid');
 
 // USER REGISTRATION CONTROLLER
 const register = async (req, res) => {
   // Check if user already exists
   const { email, role, firstName } = req.body;
+
   const oldUser = await User.findOne({ email });
   if (oldUser) {
     throw new BadRequestError('Another user with this email already exists.');
@@ -273,7 +275,11 @@ const register = async (req, res) => {
     });
   }
 
-  const result = await User.create({ ...req.body });
+  const uniqueId = shortid.generate();
+  const result = await User.create({
+    ...req.body,
+    referralCode: uniqueId
+  });
   const token = result.createJWT();
   res.status(StatusCodes.CREATED).json({ result, token, role });
 };
@@ -411,4 +417,27 @@ const resetPassword = async (req, res) => {
     .json({ success: true, msg: 'Password reset success' });
 };
 
-module.exports = { register, login, forgotPassword, resetPassword };
+const editProfile = async (req, res) => {
+  const { id } = req.params;
+  const { verified } = req.body;
+  const user = await User.findOneAndUpdate(
+    { _id: id },
+    { ...req.body, verified: verified },
+    {
+      runValidators: true,
+      new: true,
+    }
+  );
+  if (!user) {
+    throw new NotFoundError('user not found with this ID');
+  }
+  res.status(StatusCodes.OK).json(user);
+};
+
+module.exports = {
+  register,
+  login,
+  forgotPassword,
+  resetPassword,
+  editProfile,
+};

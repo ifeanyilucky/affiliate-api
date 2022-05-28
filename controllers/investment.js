@@ -20,6 +20,8 @@ const createInvestment = async (req, res) => {
       currency: 'USD',
     },
     pricing_type: 'fixed_price',
+    redirect_url: 'http://localhost:3000/investment-success',
+    cancel_url: 'http://localhost:3000/investment-cancel',
   };
   Charge.create(chargeData, async (err, response) => {
     if (err) {
@@ -27,16 +29,11 @@ const createInvestment = async (req, res) => {
     } else {
       res
         .status(200)
-        .send({ hosted_url: response.hosted_url, id: response.id });
-      return await InvestModel.create({
-        ...req.body,
-        charge: response,
-        user: req.user.userId,
-        property: property,
-      }).then((res) => {
-        console.log(res);
-        res.url;
-      });
+        .send({
+          hosted_url: response.hosted_url,
+          id: response.id,
+          code: response.code,
+        });
     }
   });
 };
@@ -53,19 +50,20 @@ const updateInvestment = async (req, res) => {
   // 7 days after
   // const sevenDaysAfter = new Date(new Date().setDate(new Date().getDate() + 7));
   const sevenDaysAfter = new Date(new Date().setDate(createdAt.getDate() + 7));
-  console.log(sevenDaysAfter);
+  console.log('seven days after', sevenDaysAfter);
   const daysInMilliseconds = 7 * 24 * 60 * 60 * 1000;
+  console.log('days in milliseconds', daysInMilliseconds);
 
   // 10 percentage of amount
   const amountPercentage = (amount / 100) * 10;
-  console.log(sevenDaysAfter - createdAt);
+  console.log('seven days after less createdAt', sevenDaysAfter - createdAt);
   setInterval(async () => {
     const updatedAmount = amount + amountPercentage;
     if (sevenDaysAfter - createdAt === daysInMilliseconds) {
       // update investment amount
       return await InvestModel.findByIdAndUpdate(
         investmentId,
-        { amount: updatedAmount, incrementDate: Date.now },
+        { incrementAmount: updatedAmount, incrementedAt: Date.now },
         { new: true }
       ).then((res) => {
         console.log(res);

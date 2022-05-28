@@ -15,6 +15,7 @@ const propertyRouter = require('./routes/property');
 const withdrawalRouter = require('./routes/withdrawal');
 const userRouter = require('./routes/users');
 const staticRouter = require('./routes/static');
+const identityRouter = require('./routes/identityVerification.js');
 // ERROR MIDDLEWARE
 const errorHandlerMiddleware = require('./middlewares/error-handler');
 const NotFound = require('./middlewares/not-found');
@@ -43,6 +44,7 @@ app.use('/api/v1/properties', propertyRouter);
 app.use('/api/v1/withdrawal', withdrawalRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/static', staticRouter);
+app.use('/api/v1/identity', identityRouter);
 
 app.get('/', (req, res) => {
   res.send(

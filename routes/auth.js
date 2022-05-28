@@ -6,9 +6,11 @@ const {
   login,
   forgotPassword,
   resetPassword,
+  editProfile,
 } = require('../controllers/auth');
 
 router.route('/register').post(register);
 router.route('/login').post(login);
+router.route('/profile/:id').patch(editProfile);
 
 module.exports = router;

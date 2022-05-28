@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
-
+const shortid = require('shortid');
 const UserSchema = new mongoose.Schema(
   {
     firstName: {
@@ -63,6 +63,19 @@ const UserSchema = new mongoose.Schema(
       trim: true,
       required: [true, 'Please provide phone number'],
     },
+    verified: {
+      type: String,
+      enum: ['true', 'false', 'pending'],
+      default: 'pending',
+      required: [true, 'Please provide verification status'],
+    },
+    referralCode: {
+      type: String,
+      default: shortid.generate,
+    },
+    referredBy: {
+      type: String,
+    },
     passwordResetToken: String,
     passwordResetExpire: Date,
   },
@@ -103,4 +116,5 @@ UserSchema.methods.getResetPasswordToken = function () {
 
   return resetToken;
 };
+
 module.exports = mongoose.model('User', UserSchema);

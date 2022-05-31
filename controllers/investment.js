@@ -6,6 +6,13 @@ const coinbase = require('coinbase-commerce-node');
 const { NotFoundError, BadRequestError } = require('../errors');
 const Client = coinbase.Client;
 const { Charge } = coinbase.resources;
+const moment = require('moment');
+const {
+  addDays,
+  getMilliseconds,
+  milliseconds,
+  intervalToDuration,
+} = require('date-fns');
 
 Client.init('ade083e4-d45d-4ca6-aa5d-75ca27c25961');
 
@@ -27,13 +34,11 @@ const createInvestment = async (req, res) => {
     if (err) {
       res.status(400).send({ message: err.message });
     } else {
-      res
-        .status(200)
-        .send({
-          hosted_url: response.hosted_url,
-          id: response.id,
-          code: response.code,
-        });
+      res.status(200).send({
+        hosted_url: response.hosted_url,
+        id: response.id,
+        code: response.code,
+      });
     }
   });
 };
@@ -45,37 +50,87 @@ const updateInvestment = async (req, res) => {
   if (!currentInvestment)
     throw new NotFoundError('investment with this ID not found!');
 
-  const { amount, createdAt } = currentInvestment;
-  console.log('current date', createdAt);
-  // 7 days after
-  // const sevenDaysAfter = new Date(new Date().setDate(new Date().getDate() + 7));
-  const sevenDaysAfter = new Date(new Date().setDate(createdAt.getDate() + 7));
-  console.log('seven days after', sevenDaysAfter);
-  const daysInMilliseconds = 7 * 24 * 60 * 60 * 1000;
-  console.log('days in milliseconds', daysInMilliseconds);
+  const { createdAt, incrementedAt } = currentInvestment;
+  const nextSevenDays = addDays(Date.now(), 7);
+  const sevenDaysAfter = new Date(new Date().setDate(new Date().getDate() + 7));
 
-  // 10 percentage of amount
-  const amountPercentage = (amount / 100) * 10;
-  console.log('seven days after less createdAt', sevenDaysAfter - createdAt);
-  setInterval(async () => {
-    const updatedAmount = amount + amountPercentage;
-    if (sevenDaysAfter - createdAt === daysInMilliseconds) {
-      // update investment amount
-      return await InvestModel.findByIdAndUpdate(
-        investmentId,
-        { incrementAmount: updatedAmount, incrementedAt: Date.now },
-        { new: true }
-      ).then((res) => {
-        console.log(res);
-      });
-      // console.log(updatedInvestment);
-      // console.log('1 second');
-      // console.log(amount);
-      // console.log(amountPercentage);
+  const countDown = (dt) => {
+    const end = new Date(dt);
+
+    const _second = 1000;
+    const _minute = _second * 60;
+    const _hour = _minute * 60;
+    const _day = _hour * 24;
+    var timer;
+    const daysInMilliseconds = 7 * 24 * 60 * 60 * 1000;
+    function showRemaining() {
+      const now = new Date();
+      const distance = end - now;
+      if (distance < 0) {
+        clearInterval(timer);
+        return;
+      }
+      var days = Math.floor(distance / _day);
+      var hours = Math.floor((distance % _day) / _hour);
+      var minutes = Math.floor((distance % _hour) / _minute);
+      var seconds = Math.floor((distance % _minute) / _second);
     }
-    console.log(updatedAmount);
-  }, daysInMilliseconds);
+    timer = setInterval(showRemaining, daysInMilliseconds);
+  };
+
+  res.status(StatusCodes.OK).json({
+    nextSevenDays,
+    sevenDaysAfter,
+    countdown: countDown(createdAt),
+  });
+  // update investment amount
+  // return await InvestModel.findByIdAndUpdate(
+  //   investmentId,
+  //   { incrementAmount: 0 },
+  //   { new: true }
+  // ).then((res) => {
+  //   console.log(res);
+  // });
 };
+
+// const updateInvestment = async (req, res) => {
+//   const { id: investmentId } = req.params;
+//   // get the single investment
+//   const currentInvestment = await InvestModel.findOne({ _id: investmentId });
+//   if (!currentInvestment)
+//     throw new NotFoundError('investment with this ID not found!');
+
+//   const { amount, createdAt } = currentInvestment;
+//   console.log('current date', createdAt);
+//   // 7 days after
+//   // const sevenDaysAfter = new Date(new Date().setDate(new Date().getDate() + 7));
+//   const sevenDaysAfter = new Date(new Date().setDate(createdAt.getDate() + 7));
+//   console.log('seven days after', sevenDaysAfter);
+//   const daysInMilliseconds = 7 * 24 * 60 * 60 * 1000;
+//   console.log('days in milliseconds', daysInMilliseconds);
+
+//   // 10 percentage of amount
+//   const amountPercentage = (amount / 100) * 10;
+//   console.log('seven days after less createdAt', sevenDaysAfter - createdAt);
+//   setInterval(async () => {
+//     const updatedAmount = amount + amountPercentage;
+//     if (sevenDaysAfter - createdAt === daysInMilliseconds) {
+//       // update investment amount
+//       return await InvestModel.findByIdAndUpdate(
+//         investmentId,
+//         { incrementAmount: updatedAmount, incrementedAt: Date.now },
+//         { new: true }
+//       ).then((res) => {
+//         console.log(res);
+//       });
+//       // console.log(updatedInvestment);
+//       // console.log('1 second');
+//       // console.log(amount);
+//       // console.log(amountPercentage);
+//     }
+//     console.log(updatedAmount);
+//   }, daysInMilliseconds);
+// };
 
 // const updateAccount = (req, res) => {
 //   const {} = req.body;
@@ -88,7 +143,8 @@ const updateInvestment = async (req, res) => {
 // const deletePayment = async (id) => await InvestModel.deleteOne({ id });
 
 const getAllInvestment = async (req, res) => {
-  const investment = await InvestModel.find({ user: req.user.userId });
+  const investment = await InvestModel.find({});
+  // const investment = await InvestModel.find({ user: req.user.userId });
   res.status(StatusCodes.OK).json(investment);
 };
 

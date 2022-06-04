@@ -44,53 +44,18 @@ const createInvestment = async (req, res) => {
 };
 
 const updateInvestment = async (req, res) => {
-  const { id: investmentId } = req.params;
-  // get the single investment
-  const currentInvestment = await InvestModel.findOne({ _id: investmentId });
-  if (!currentInvestment)
-    throw new NotFoundError('investment with this ID not found!');
-
-  const { createdAt, incrementedAt } = currentInvestment;
-  const nextSevenDays = addDays(Date.now(), 7);
-  const sevenDaysAfter = new Date(new Date().setDate(new Date().getDate() + 7));
-
-  const countDown = (dt) => {
-    const end = new Date(dt);
-
-    const _second = 1000;
-    const _minute = _second * 60;
-    const _hour = _minute * 60;
-    const _day = _hour * 24;
-    var timer;
-    const daysInMilliseconds = 7 * 24 * 60 * 60 * 1000;
-    function showRemaining() {
-      const now = new Date();
-      const distance = end - now;
-      if (distance < 0) {
-        clearInterval(timer);
-        return;
-      }
-      var days = Math.floor(distance / _day);
-      var hours = Math.floor((distance % _day) / _hour);
-      var minutes = Math.floor((distance % _hour) / _minute);
-      var seconds = Math.floor((distance % _minute) / _second);
-    }
-    timer = setInterval(showRemaining, daysInMilliseconds);
-  };
-
-  res.status(StatusCodes.OK).json({
-    nextSevenDays,
-    sevenDaysAfter,
-    countdown: countDown(createdAt),
-  });
+  const { id } = req.params;
+  const { incrementAmount, incrementDate } = req.body;
   // update investment amount
-  // return await InvestModel.findByIdAndUpdate(
-  //   investmentId,
-  //   { incrementAmount: 0 },
-  //   { new: true }
-  // ).then((res) => {
-  //   console.log(res);
-  // });
+  const investment = InvestModel.findByIdAndUpdate(
+    id,
+    { incrementAmount: incrementAmount, incrementDate: incrementDate },
+    { new: true }
+  );
+  if (!investment) {
+    throw new NotFoundError('Not found!');
+  }
+  res.status(StatusCodes.OK).json(investment);
 };
 
 // const updateInvestment = async (req, res) => {

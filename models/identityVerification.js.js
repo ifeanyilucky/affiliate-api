@@ -20,32 +20,24 @@ const IdentityVerification = new mongoose.Schema(
       type: String,
       required: [true, 'Please provide state'],
     },
-    passport: {
-      type: String,
-    },
     city: {
       type: String,
     },
     street: String,
     zipCode: String,
-    driverLicense: {
-      type: String,
-    },
-    otherId: {
-      type: String,
-    },
-    selfie: {
-      type: String,
-    },
+    idType: String,
+    idImage: String,
+    selfie: String,
+    idCountry: String,
     dateOfBirth: {
       type: String,
       required: [true, 'Please provide your date of birth'],
     },
-
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
     },
+    identityEmaiL: String,
     tel: {
       type: String,
       minLength: 10,
@@ -55,14 +47,12 @@ const IdentityVerification = new mongoose.Schema(
     },
     verified: {
       type: String,
-      enum: ['true', 'false', 'pending'],
-      default: 'pending',
+      enum: ['true', 'false'],
+      default: 'false',
       required: [true, 'Please provide verification status'],
     },
-    passwordResetToken: String,
-    passwordResetExpire: Date,
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model('IdentityVerification', IdentityVerification);
+module.exports = mongoose.model('idVerification', IdentityVerification);

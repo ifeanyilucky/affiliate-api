@@ -2,6 +2,7 @@ const User = require('../models/user');
 const { StatusCodes } = require('http-status-codes');
 const crypto = require('crypto');
 const fs = require('fs');
+const bcrypt = require('bcryptjs');
 const {
   BadRequestError,
   UnauthenticatedError,
@@ -24,35 +25,20 @@ const register = async (req, res) => {
 <html>
 
 <head>
+
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title> 👋 Welcome to Thebrick!</title>
+    <title>Welcome Email</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&display=swap"
+        rel="stylesheet">
     <style type="text/css">
-        @media screen {
-            @font-face {
-                font-family: 'Source Sans Pro';
-                font-style: normal;
-                font-weight: 400;
-                src: local('Source Sans Pro Regular'), local('SourceSansPro-Regular'), url(https://fonts.gstatic.com/s/sourcesanspro/v10/ODelI1aHBYDBqgeIAH2zlBM0YzuT7MdOe03otPbuUS0.woff) format('woff');
-            }
-
-            @font-face {
-                font-family: 'Source Sans Pro';
-                font-style: normal;
-                font-weight: 700;
-                src: local('Source Sans Pro Bold'), local('SourceSansPro-Bold'), url(https://fonts.gstatic.com/s/sourcesanspro/v10/toadOcfmlt9b38dHJxOBGFkQc6VGVFSmCnC_l7QZG60.woff) format('woff');
-            }
-        }
-
         body,
         table,
         td,
         a {
             -ms-text-size-adjust: 100%;
-            /* 1 */
             -webkit-text-size-adjust: 100%;
-            /* 2 */
         }
 
         table,
@@ -65,9 +51,6 @@ const register = async (req, res) => {
             -ms-interpolation-mode: bicubic;
         }
 
-        /**
-   * Remove blue links for iOS devices.
-   */
         a[x-apple-data-detectors] {
             font-family: inherit !important;
             font-size: inherit !important;
@@ -93,7 +76,7 @@ const register = async (req, res) => {
         }
 
         a {
-            color: #135bfd;
+            color: black;
         }
 
         img {
@@ -104,181 +87,145 @@ const register = async (req, res) => {
             outline: none;
         }
     </style>
+
 </head>
 
-<body style="background-color: #e9ecef;">
-    <!-- start preheader -->
+<body style="background-color: #D2C7BA;">
     <div class="preheader"
         style="display: none; max-width: 0; max-height: 0; overflow: hidden; font-size: 1px; line-height: 1px; color: #fff; opacity: 0;">
-        👋 Welcome to Thebrick!
+        Welcome to Lemox, ${firstName}!
     </div>
-    <!-- end preheader -->
-    <!-- start body -->
     <table border="0" cellpadding="0" cellspacing="0" width="100%">
-        <!-- start logo -->
         <tr>
-            <td align="center" bgcolor="#e9ecef">
+            <td align="center" bgcolor="#D2C7BA">
+                <!--[if (gte mso 9)|(IE)]>
+              <table align="center" border="0" cellpadding="0" cellspacing="0" width="600">
+              <tr>
+              <td align="center" valign="top" width="600">
+              <![endif]-->
                 <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
                     <tr>
                         <td align="center" valign="top" style="padding: 36px 24px;">
-                            <a href="https://thebrick.com.ng" target="_blank" style="display: inline-block;">
-                                <img src="https://res.cloudinary.com/thebrick-realty/image/upload/v1643146881/thebrick.com.ng/thebrick_sy7yab.png"
-                                    alt="Logo" border="0" width="48"
-                                    style="display: block; width: 150px; max-width: 250px; min-width: 150px;">
+                            <a href="https://lemox.co" target="_blank" rel="noopener noreferrer"
+                                style="display: inline-block;">
+                                <!-- <img src="./img/paste-logo-light@2x.png" alt="Logo" border="0" width="48"
+                                    style="display: block; width: 48px; max-width: 48px; min-width: 48px;"> -->
+                                <h1 style="font-family: 'DM serif display', serif ; color: #1b1642; margin: 0 ">Lemox.
+                                </h1>
                             </a>
                         </td>
                     </tr>
                 </table>
+                <!--[if (gte mso 9)|(IE)]>
+              </td>
+              </tr>
+              </table>
+              <![endif]-->
             </td>
         </tr>
         <tr>
-        <tr>
-            <td align="center" bgcolor="#e9ecef">
-                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
-                    <tr>
-                        <td align="left" bgcolor="#ffffff"
-                            style="padding: 36px 24px 0; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; border-top: 3px solid #d4dadf;">
-                            <h4
-                                style="margin: 0; font-size: 42px; font-weight: 700; letter-spacing: -1px; line-height: 48px;">
-                                Make yourself at home
-                            </h4>
-                        </td>
-                    </tr>
-                </table>
+            <td align="center" bgcolor="#D2C7BA">
+                <!--[if (gte mso 9)|(IE)]>
+              <table align="center" border="0" cellpadding="0" cellspacing="0" width="600">
+              <tr>
+              <td align="center" valign="top" width="600">
+              <![endif]-->
+
+                <!--[if (gte mso 9)|(IE)]>
+              </td>
+              </tr>
+              </table>
+              <![endif]-->
             </td>
         </tr>
-        <td align="center" bgcolor="#e9ecef">
-            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
-                <tr>
-                    <td align="left" bgcolor="#ffffff"
-                        style="padding: 24px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">
-                        <p style="margin: 0;">Welcome, ${firstName}. Now you're just one step away from finding your new
-                            hostel
-                            easily and safely. Make yourself at home, your new adventure begins!</p>
-                    </td>
-                </tr>
-                <tr>
-                    <td align="left" bgcolor="#ffffff">
-                        <table border="0" cellpadding="0" cellspacing="0" width="100%">
-                            <tr>
-                                <td align="left" bgcolor="#ffffff" style="padding: 24px;">
-                                    <table border="0" cellpadding="0" cellspacing="0">
-                                        <tr>
-                                            <td align="left" bgcolor="#135bfd" style="border-radius: 6px;">
-                                                <a href="https://thebrick.com.ng/hostels" target="_blank"
-                                                    style="display: inline-block; padding: 16px 36px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; color: #ffffff; text-decoration: none; border-radius: 6px;">
-                                                    Explore hostels</a>
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
-                <tr>
-
-                    <td align="left" bgcolor="#ffffff"
-                        style="padding: 24px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">
-
-                        <hr />
-                        <div
-                            style="display: flex; flex-flow: row; gap: 20px; justify-content: space-between; padding: 1rem 0;">
-                            <img src="https://res.cloudinary.com/thebrick-realty/image/upload/v1648926886/thebrick.com.ng/email/verified-listing_lcdvko.jpg"
-                                alt="verified-hostel" width="100" style="display: block; width: 250px" />
-                            <div style="margin: 0;">
-                                <h1 style="line-height: 48px;">What you see is what you rent</h1>
-                                <p>We personally verify the places creating honest photographs, videos and descriptions
-                                    for
-                                    you to make safe decisions.</p>
-                            </div>
-                        </div>
-                        <hr />
-                    </td>
-                </tr>
-                <tr>
-                    <td align="left" bgcolor="#ffffff"
-                        style="padding: 15px 24px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">
-
-                        <div style="margin: 0;">
-                            <h1>Put your mind to rest</h1>
-                            <div
-                                style="display: flex; flex-flow: row; justify-content: space-between; align-items: center; gap: 50px;">
-                                <img src="https://res.cloudinary.com/thebrick-realty/image/upload/v1648926880/thebrick.com.ng/email/secure_nm1iyv.png"
-                                    width="100" height="100" style="display: block; width: 50px; height: 50px;"
-                                    alt="secure-payment" />
-                                <div>
-                                    <h3>Secure payments</h3>
-                                    <p>Our platform is completely safe and the hostel payment will be only transferred
-                                        to the landlord after you’ve moved in. </p>
-                                </div>
-                            </div>
-                            <div
-                                style="display: flex; flex-flow: row; justify-content: space-between; align-items: center; gap: 50px;">
-                                <img src="https://res.cloudinary.com/thebrick-realty/image/upload/v1648926869/thebrick.com.ng/email/clock_lect5d.png"
-                                    width="100" height="100" style="display: block; width: 50px; height: 50px;"
-                                    alt="secure-payment" />
-                                <div>
-                                    <h3>Cancelation protection</h3>
-                                    <p>If the landlord cancels the last minute, we will relocate you or refund you the
-                                        100% of your payment. </p>
-                                </div>
-                            </div>
-                            <div
-                                style="display: flex; flex-flow: row; justify-content: space-between; align-items: center; gap: 50px;">
-                                <img src="https://res.cloudinary.com/thebrick-realty/image/upload/v1648926878/thebrick.com.ng/email/veracity_fpoc8m.png"
-                                    width="100" height="100" style="display: block; width: 50px; height: 50px;"
-                                    alt="secure-payment" />
-                                <div>
-                                    <h3>Veracity Guarantee</h3>
-                                    <p>If the place is significantly different to what the listing promises, let us know
-                                        within 24 hours and we’ll solve it.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-            </table>
-        </td>
-        </tr>
         <tr>
-            <td align="center" bgcolor="#e9ecef" style="padding: 24px;">
-
+            <td align="center" bgcolor="#D2C7BA">
+                <!--[if (gte mso 9)|(IE)]>
+              <table align="center" border="0" cellpadding="0" cellspacing="0" width="600">
+              <tr>
+              <td align="center" valign="top" width="600">
+              <![endif]-->
                 <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
-
                     <tr>
-                        <td align="center" bgcolor="#e9ecef"
-                            style="padding: 12px 24px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 14px; line-height: 20px; color: #666;">
+                        <td bgcolor="#ffffff" align="left" style="padding: 24px; font-size: 16px; line-height: 24px;">
+                            <h1
+                                style="margin: 0 0 12px; font-family: 'DM Serif Display', serif; font-size: 32px; font-weight: 400; line-height: 48px;">
+                                Welcome, ${firstName}!</h1>
 
-                            <p style="margin: 0;">&copy; <span id="year"></span> Thebrick. All Rights Reserved.</p>
-                            <p style="margin: 0;"><a href="https://thebrick.com.ng/about" target="_blank">About Us</a> ●
-                                <a href="https://thebrick.com.ng/contact" target="_blank">Contact Us</a> ●
-                                <a href="https://thebrick.com.ng/privacy-policy" target="_blank">Privacy Policy</a>
+                            <p style="font-family: 'DM Sans', sans-serif; margin: 0;">
+                                Your journey to building your portfolio starts today!</p>
+                            <p style="font-family: 'DM Sans', sans-serif;">
+
+                                We're super excited to have you on-board, ${firstName}!
+                                You can access your account area to start ID verification,
+                                change your password, and more at:
+                                <a href="https://lemox.co/dashboard/account-details"
+                                    target="_blank">https://lemox.co/dashboard/account-details</a>
                             </p>
-                            <p style="margin: 0;">Ojo, Lagos State</p>
+                            <p style="font-family: 'DM Sans', sans-serif; margin: 0;">
+
+                                To start building your portfolio, head to: <a href="https://lemox.co/marketplace/"
+                                    target="_blank">https://lemox.co/marketplace/</a>
+                                <strong>Welcome to the future of real estate!</strong>
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+                <!--[if (gte mso 9)|(IE)]>
+              </td>
+              </tr>
+              </table>
+              <![endif]-->
+            </td>
+        </tr>
+        <!-- end copy block -->
+
+        <!-- start footer -->
+        <tr>
+            <td align="center" bgcolor="#D2C7BA" style="padding: 24px;">
+                <!--[if (gte mso 9)|(IE)]>
+              <table align="center" border="0" cellpadding="0" cellspacing="0" width="600">
+              <tr>
+              <td align="center" valign="top" width="600">
+              <![endif]-->
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
+                    <tr>
+                        <td align="center" bgcolor="#D2C7BA"
+                            style="padding: 12px 24px; font-family: 'DM Sans', sans-serif; font-size: 14px; line-height: 20px; color: #666;">
+                            <p style="margin: 0;">Got a question? <a href="https://lemox.co/contact"
+                                    target="_blank">Send us a message</a></p>
                         </td>
                     </tr>
                 </table>
+                <!--[if (gte mso 9)|(IE)]>
+              </td>
+              </tr>
+              </table>
+              <![endif]-->
             </td>
         </tr>
+        <!-- end footer -->
+
     </table>
+    <!-- end body -->
+
 </body>
 
 </html>
   `;
   if (role === 'investor') {
     await sendEmail({
-      from: `Lemox Team <thebrickng@gmail.com>`,
+      from: `Lemox Team <support@lemox.co>`,
       to: email,
       subject: 'Welcome to Lemox!',
       text: welcomeMsg,
     });
   }
-
   const uniqueId = shortid.generate();
   const result = await User.create({
     ...req.body,
-    referralCode: uniqueId
+    referralCode: uniqueId,
   });
   const token = result.createJWT();
   res.status(StatusCodes.CREATED).json({ result, token, role });
@@ -319,50 +266,208 @@ const forgotPassword = async (req, res) => {
   const { email } = req.body;
   const user = await User.findOne(email);
   if (!user) {
-    throw new NotFoundError(`${email} is not found in our db`);
+    throw new NotFoundError(`${email} is not found`);
   }
 
   const resetToken = user.getResetPasswordToken();
 
   await user.save();
 
-  const resetUrl = `http://localhost:3000/login/reset-password/${resetToken}`;
+  const resetUrl = `http://lemox.co/auth/reset-password/${resetToken}`;
 
   // message that will be sent to the user when resetting password
   const message = `
-  <html lang="en">
+  <!DOCTYPE html>
+<html>
 
+<head>
 
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Welcome Email</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&display=swap"
+        rel="stylesheet">
+    <style type="text/css">
+        body,
+        table,
+        td,
+        a {
+            -ms-text-size-adjust: 100%;
+            -webkit-text-size-adjust: 100%;
+        }
 
-<body style="font-size: 16px; color: #000000;">
-    <div>
-        <img src="https://res.cloudinary.com/thebrick-realty/image/upload/v1643146881/thebrick.com.ng/thebrick_sy7yab.png" alt="logo" width="70%"
-             />
-        <div style="padding: 50px 25px">
-            <h3>
-                Someone (hopefully you) has requested a password reset for your
-                account on Thebrick.
-            </h3>
-            <p>
-                To reset your password, click the button/link below. <br />
-                the link will self-destruct after 10 minutes.
-            </p>
-            <a href="${resetUrl}" clicktracking="off">${resetUrl}</a>
-            <p>
-                If you don't wish to reset your password, disregard this email and no
-                action will be taken.
-            </p>
-            <p></p>
-            <br />
-            <p></p>
-            <br />
-            Love,
-            <p>Thebrick Team</p>
-            <a href="https://thebrick.com.ng/" target="_blank">
-                https://thebrick.com.ng
-            </a>
-        </div>
+        table,
+        td {
+            mso-table-rspace: 0pt;
+            mso-table-lspace: 0pt;
+        }
+
+        img {
+            -ms-interpolation-mode: bicubic;
+        }
+
+        a[x-apple-data-detectors] {
+            font-family: inherit !important;
+            font-size: inherit !important;
+            font-weight: inherit !important;
+            line-height: inherit !important;
+            color: inherit !important;
+            text-decoration: none !important;
+        }
+
+        div[style*="margin: 16px 0;"] {
+            margin: 0 !important;
+        }
+
+        body {
+            width: 100% !important;
+            height: 100% !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+        table {
+            border-collapse: collapse !important;
+        }
+
+        a {
+            color: black;
+        }
+
+        img {
+            height: auto;
+            line-height: 100%;
+            text-decoration: none;
+            border: 0;
+            outline: none;
+        }
+    </style>
+
+</head>
+
+<body style="background-color: #D2C7BA;">
+    <div class="preheader"
+        style="display: none; max-width: 0; max-height: 0; overflow: hidden; font-size: 1px; line-height: 1px; color: #fff; opacity: 0;">
+        Welcome to Lemox, Jason!
     </div>
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+            <td align="center" bgcolor="#D2C7BA">
+                <!--[if (gte mso 9)|(IE)]>
+              <table align="center" border="0" cellpadding="0" cellspacing="0" width="600">
+              <tr>
+              <td align="center" valign="top" width="600">
+              <![endif]-->
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
+                    <tr>
+                        <td align="center" valign="top" style="padding: 36px 24px;">
+                            <a href="https://lemox.co" target="_blank" rel="noopener noreferrer"
+                                style="display: inline-block;">
+                                <!-- <img src="./img/paste-logo-light@2x.png" alt="Logo" border="0" width="48"
+                                    style="display: block; width: 48px; max-width: 48px; min-width: 48px;"> -->
+                                <h1 style="font-family: 'DM serif display', serif ; color: #1b1642; margin: 0 ">Lemox.
+                                </h1>
+                            </a>
+                        </td>
+                    </tr>
+                </table>
+                <!--[if (gte mso 9)|(IE)]>
+              </td>
+              </tr>
+              </table>
+              <![endif]-->
+            </td>
+        </tr>
+        <tr>
+            <td align="center" bgcolor="#D2C7BA">
+                <!--[if (gte mso 9)|(IE)]>
+              <table align="center" border="0" cellpadding="0" cellspacing="0" width="600">
+              <tr>
+              <td align="center" valign="top" width="600">
+              <![endif]-->
+
+                <!--[if (gte mso 9)|(IE)]>
+              </td>
+              </tr>
+              </table>
+              <![endif]-->
+            </td>
+        </tr>
+        <tr>
+            <td align="center" bgcolor="#D2C7BA">
+                <!--[if (gte mso 9)|(IE)]>
+              <table align="center" border="0" cellpadding="0" cellspacing="0" width="600">
+              <tr>
+              <td align="center" valign="top" width="600">
+              <![endif]-->
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
+                    <tr>
+                        <td bgcolor="#ffffff" align="left" style="padding: 24px; font-size: 16px; line-height: 24px;">
+
+
+                            <p style="font-family: 'DM Sans', sans-serif; margin: 0;">
+                                Someone has requested a new password for the following account on Lemox:
+                            </p>
+                            <p style="font-family: 'DM Sans', sans-serif;">
+                                Username: wfguru2017
+                            </p>
+                            <p style="font-family: 'DM Sans', sans-serif; margin: 0;">
+
+                                If you didn't make this request, please ignore this email. If you'd like to proceed:
+                            </p>
+                            <p style="font-family: 'DM Sans', sans-serif; margin: 0;">
+                                <a href="${resetUrl}"
+                                    target="_blank">${resetUrl}</a>
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+                <!--[if (gte mso 9)|(IE)]>
+              </td>
+              </tr>
+              </table>
+              <![endif]-->
+            </td>
+        </tr>
+        <!-- end copy block -->
+
+        <!-- start footer -->
+        <tr>
+            <td align="center" bgcolor="#D2C7BA" style="padding: 24px;">
+                <!--[if (gte mso 9)|(IE)]>
+              <table align="center" border="0" cellpadding="0" cellspacing="0" width="600">
+              <tr>
+              <td align="center" valign="top" width="600">
+              <![endif]-->
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
+                    <tr>
+                        <td align="center" bgcolor="#D2C7BA"
+                            style="padding: 12px 24px; font-family: 'DM Sans', sans-serif; font-size: 14px; line-height: 20px; color: #666;">
+                            <p style="margin: 0;">Got a question? <a href="https://lemox.co/contact"
+                                    target="_blank">Send us a message</a></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" bgcolor="#D2C7BA"
+                            style="padding: 12px 24px; font-family: 'DM Sans', sans-serif; font-size: 14px; line-height: 20px; color: #666;">
+                            <p style="margin: 0;">DM Sans 12sans-34 S. Broadway St. City, State 12345</p>
+                        </td>
+                    </tr>
+                </table>
+                <!--[if (gte mso 9)|(IE)]>
+              </td>
+              </tr>
+              </table>
+              <![endif]-->
+            </td>
+        </tr>
+        <!-- end footer -->
+
+    </table>
+    <!-- end body -->
+
 </body>
 
 </html>
@@ -370,7 +475,7 @@ const forgotPassword = async (req, res) => {
 
   try {
     await sendEmail({
-      from: `Thebrick Support <support@thebrick.com.ng>`,
+      from: `Lemox Support <support@lemox.co>`,
       to: user.email,
       subject: 'Forgot your password?',
       text: message,
@@ -434,10 +539,29 @@ const editProfile = async (req, res) => {
   res.status(StatusCodes.OK).json(user);
 };
 
+const changePassword = async (req, res) => {
+  const { oldPassword, password } = req.body;
+  const { id } = req.params;
+  const user = await User.findOne({ _id: id });
+  if (!user) throw new NotFoundError('User not found');
+  const isPasswordCorrect = user.comparePassword(oldPassword);
+  if (!isPasswordCorrect)
+    throw new BadRequestError('Old password is not correct');
+  const salt = await bcrypt.genSalt(10);
+  const modifiedPassword = await bcrypt.hash(password, salt);
+  const userAccount = await User.findOneAndUpdate(
+    { _id: id },
+    { password: modifiedPassword },
+    { new: true }
+  );
+  res.status(StatusCodes.ACCEPTED).json(userAccount);
+};
+
 module.exports = {
   register,
   login,
   forgotPassword,
   resetPassword,
   editProfile,
+  changePassword,
 };

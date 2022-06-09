@@ -16,4 +16,5 @@ const getUser = async (req, res) => {
   res.status(StatusCodes.OK).json(user);
 };
 
+
 module.exports = { getUser, getUsers };

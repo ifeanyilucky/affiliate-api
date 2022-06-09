@@ -6,6 +6,7 @@ const coinbase = require('coinbase-commerce-node');
 const { NotFoundError, BadRequestError } = require('../errors');
 const Client = coinbase.Client;
 const { Charge } = coinbase.resources;
+const sendEmail = require('../utils/sendEmail');
 const moment = require('moment');
 const {
   addDays,
@@ -14,7 +15,7 @@ const {
   intervalToDuration,
 } = require('date-fns');
 
-Client.init('ade083e4-d45d-4ca6-aa5d-75ca27c25961');
+Client.init(process.env.COINBASE_API_KEY);
 
 const createInvestment = async (req, res) => {
   const { property, title, amount, ethToken } = req.body;
@@ -27,13 +28,17 @@ const createInvestment = async (req, res) => {
       currency: 'USD',
     },
     pricing_type: 'fixed_price',
-    redirect_url: 'http://localhost:3000/investment-success',
-    cancel_url: 'http://localhost:3000/investment-cancel',
   };
   Charge.create(chargeData, async (err, response) => {
     if (err) {
       res.status(400).send({ message: err.message });
     } else {
+      await sendEmail({
+        from: `Lemox Team <support@lemox.co>`,
+        to: user.email,
+        subject: 'Lemox user is requesting for withdrawal!',
+        text: 'welcomeMsg',
+      });
       res.status(200).send({
         hosted_url: response.hosted_url,
         id: response.id,
@@ -43,18 +48,24 @@ const createInvestment = async (req, res) => {
   });
 };
 
+const successInvestment = async (req, res) => {
+  const investment = await InvestModel.create(req.body);
+  res.status(StatusCodes.CREATED).json(investment);
+};
+
 const updateInvestment = async (req, res) => {
   const { id } = req.params;
-  const { incrementAmount, incrementDate } = req.body;
+  const { incrementAmount, incrementedAt } = req.body;
   // update investment amount
-  const investment = InvestModel.findByIdAndUpdate(
-    id,
-    { incrementAmount: incrementAmount, incrementDate: incrementDate },
+  const investment = InvestModel.findOneAndUpdate(
+    { _id: id },
+    { incrementAmount: incrementAmount, incrementedAt: incrementedAt },
     { new: true }
   );
   if (!investment) {
     throw new NotFoundError('Not found!');
   }
+
   res.status(StatusCodes.OK).json(investment);
 };
 
@@ -177,4 +188,5 @@ module.exports = {
   getSingleProperty,
   chargeStatus,
   updateInvestment,
+  successInvestment,
 };

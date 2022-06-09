@@ -20,7 +20,7 @@ const InvestmentSchema = new Schema({
     default: Date.now,
   },
   incrementedAt: {
-    type: Date,
+    type: String,
     default: Date.now,
   },
   incrementAmount: {

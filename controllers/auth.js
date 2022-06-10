@@ -264,7 +264,7 @@ const login = async (req, res) => {
 // FORGOT PASSWORD
 const forgotPassword = async (req, res) => {
   const { email } = req.body;
-  const user = await User.findOne(email);
+  const user = await User.findOne({ email: email });
   if (!user) {
     throw new NotFoundError(`${email} is not found`);
   }
@@ -284,7 +284,7 @@ const forgotPassword = async (req, res) => {
 
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>Welcome Email</title>
+    <title>Forgot your password</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&display=swap"
         rel="stylesheet">
@@ -488,7 +488,6 @@ const forgotPassword = async (req, res) => {
     user.passwordResetToken = undefined;
     user.passwordResetExpire = undefined;
 
-    await user.save();
     throw new BadRequestError('Email could not be sent');
   }
 };

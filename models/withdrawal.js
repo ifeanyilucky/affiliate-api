@@ -9,8 +9,17 @@ const withdrawalSchema = new Schema(
     },
     user: {
       type: Schema.Types.ObjectId,
-      require: [true, 'Please provide investor'],
+      required: [true, 'Please provide investor'],
       ref: 'User',
+    },
+    btcWalletAddress: {
+      type: String,
+      required: true,
+    },
+    status: {
+      type: String,
+      enum: ['pending', 'complete', 'cancelled'],
+      default: 'pending',
     },
   },
   { timestamps: true }

@@ -4,6 +4,7 @@ const sendEmail = require('../utils/sendEmail');
 
 const withdrawFunds = async (req, res) => {
   const { email } = req.user;
+  const { btcWalletAddress, amount } = req.body;
   const withdraw = await withdrawal.create({
     ...req.body,
     user: req.user.userId,
@@ -11,13 +12,18 @@ const withdrawFunds = async (req, res) => {
   res.status(StatusCodes.CREATED).json(withdraw);
 
   const withdrawMsg = `
+  <div>
+    <h6>User with this email:<strong> ${email}</strong> has requested a withdrawal on their Lemox account</h6>
+    <p>Amount: {amount}</p>
+    <p>BTC Wallet Address: ${btcWalletAddress} </p>
+  </div>
   
   `;
   await sendEmail({
     from: `Lemox Team <support@lemox.co>`,
-    to: email,
+    to: 'support@lemox.co',
     subject: 'Lemox user is requesting for withdrawal!',
-    text: '',
+    text: withdrawMsg,
   });
 };
 

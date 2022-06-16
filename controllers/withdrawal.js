@@ -29,7 +29,7 @@ const withdrawFunds = async (req, res) => {
 
 const getAllWithdrawal = async (req, res) => {
   const withdraw = await withdrawal.find({ user: req.user.userId });
-  res.status(StatusCodes.CREATED).json(withdraw);
+  res.status(StatusCodes.OK).json(withdraw);
 };
 
 const getSingleWithdrawal = async (req, res) => {

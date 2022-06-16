@@ -119,7 +119,7 @@ const updateInvestment = async (req, res) => {
 // const deletePayment = async (id) => await InvestModel.deleteOne({ id });
 
 const getAllInvestment = async (req, res) => {
-  const investment = await InvestModel.find({});
+  const investment = await InvestModel.find({}).sort('createdAt');
   // const investment = await InvestModel.find({ user: req.user.userId });
   res.status(StatusCodes.OK).json(investment);
 };

@@ -1,6 +1,6 @@
 const config = {};
 
-config.website = 'http://localhost:3000';
+config.website = process.env.HOST;
 // config.website = 'http://www.lemox.co';
 
 config.web = {};

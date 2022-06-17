@@ -39,7 +39,7 @@ const UserSchema = new mongoose.Schema(
     profilePic: {
       type: String,
       default:
-        'https://res.cloudinary.com/thebrick-realty/image/upload/v1646952833/thebrick.com.ng/avatar_3x_s55dfe.png',
+        'https://avatars.dicebear.com/api/male/avataaars.svg',
     },
     password: {
       type: String,
@@ -64,10 +64,9 @@ const UserSchema = new mongoose.Schema(
       required: [true, 'Please provide phone number'],
     },
     verified: {
-      type: String,
-      enum: ['true', 'false', 'pending'],
-      default: 'pending',
-      required: [true, 'Please provide verification status'],
+      type: Boolean,
+      default: false,
+      required: true,
     },
     referralCode: {
       type: String,
@@ -97,6 +96,15 @@ UserSchema.methods.createJWT = function () {
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_LIFETIME }
   );
+};
+
+UserSchema.methods.generateVerificationToken = function () {
+  const verificationToken = jwt.sign(
+    { userId: this._id },
+    process.env.USER_VERIFICATION_TOKEN_SECRET,
+    { expiresIn: '2d' }
+  );
+  return verificationToken;
 };
 
 UserSchema.methods.comparePassword = async function (candidatePassword) {

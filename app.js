@@ -7,6 +7,8 @@ const xss = require('xss-clean');
 const express = require('express');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
+const path = require('path');
+const config = require('./config');
 
 const app = express();
 const authRouter = require('./routes/auth');
@@ -48,6 +50,41 @@ app.use('/api/v1/static', staticRouter);
 app.use('/api/v1/identity', identityRouter);
 app.use('/api/v1/contact', contact);
 
+app.use(express.static(path.join(__dirname + '/public')));
+app.use(express.static(path.join(__dirname, 'views')));
+
+// EJS
+app.get('/email/forgot-password', (req, res) =>
+  res.render('email/forgot-password', {
+    config,
+    title: 'Forgot your password',
+    email: 'ifeanyilucky360@gmail.com',
+  })
+);
+app.get('/email/verify', (req, res) =>
+  res.render('email/verify', { config, title: 'Verify your email' })
+);
+
+app.get('/email/id-verification-success', (req, res) =>
+  res.render('email/id-verification-success', {
+    title: 'You ID has been approved',
+    config,
+  })
+);
+
+const amount = 4500;
+app.get('/email/investment-completed', (req, res) =>
+  res.render('email/investment-complete', {
+    config,
+    title: 'Investment completed',
+    firstName: 'Ifeanyi',
+    amount: amount.toLocaleString(),
+    id: '49dgi9vndd',
+    propertyTitle: 'Lisbon, Canada',
+  })
+);
+
+app.set('view engine', 'ejs');
 app.get('/', (req, res) => {
   res.send(
     ` <h1>Lemox Property Investment API</h1> 

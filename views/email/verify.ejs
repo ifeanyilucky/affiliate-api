@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>
+        <%- title %>
+    </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&display=swap"
+        rel="stylesheet">
+    <link href="/css/email.css" rel="stylesheet" type="text/css">
+</head>
+
+<body style="background-color:#f3f8ff;">
+    <div class="preheader"
+        style="display: none; max-width: 0; max-height: 0; overflow: hidden; font-size: 1px; line-height: 1px; color: #fff; opacity: 0;">
+        <%- title %>
+    </div>
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+        <%- include('../partials/header') %>
+            <tr>
+                <td align="center" bgcolor="#f3f8ff">
+                    <!--[if (gte mso 9)|(IE)]>
+              <table align="center" border="0" cellpadding="0" cellspacing="0" width="600">
+              <tr>
+              <td align="center" valign="top" width="600">
+              <![endif]-->
+                    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
+                        <tr>
+                            <td bgcolor="#ffffff" align="left"
+                                style="padding: 24px; font-size: 16px; line-height: 24px;">
+                                <h3 style="font-family: 'DM Sans', sans-seif; margin: 0;">Hello</h3>
+                                <p style="font-family: 'DM Sans', sans-serif; margin: 0;">
+                                    Please click the button below to verify your email address.
+                                </p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="left" bgcolor="#ffffff">
+                                <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                    <tr>
+                                        <td align="center" bgcolor="#ffffff" style="padding: 5px;">
+                                            <table border="0" cellpadding="0" cellspacing="0">
+                                                <tr>
+                                                    <td align="center" bgcolor="#1b1642" style="border-radius: 6px;">
+                                                        <a href="<%-url%>" target="_blank"
+                                                            style="display: inline-block; padding: 12px 28px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; color: #ffffff; text-decoration: none; border-radius: 6px;">
+                                                            Verify email address</a>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="center" bgcolor="#ffffff">
+                                <table border=" 0" cellpadding="0" cellspacing="0" width="100%"
+                                    style="max-width: 600px;">
+                                    <tr>
+                                        <td bgcolor="#ffffff" align="left"
+                                            style="padding: 24px; font-size: 16px; line-height: 24px;">
+                                            <p style="font-family: 'DM Sans', sans-serif;">
+                                                If you did not create an account, no further action is required.
+                                            </p>
+                                            <p style="font-family: 'DM Sans', sans-serif; margin: 0;">
+                                                Regards,<br />
+                                                Lemox
+                                            </p>
+
+                                            <p style="font-family: 'DM Sans', sans-serif; margin: 0; font-size: 13px">
+
+                                                If you’re having trouble clicking the "Verify Email Address" button,
+                                                copy and paste
+                                                the URL below into your web browser:
+                                                <a href="<%-url%>" target="_blank">
+                                                    <%-url%>
+                                                </a>
+                                            </p>
+
+                                        </td>
+                            </td>
+
+                        </tr>
+
+                    </table>
+                    <!--[if (gte mso 9)|(IE)]>
+              </td>
+              </tr>
+              </table>
+              <![endif]-->
+                </td>
+            </tr>
+            <!-- end copy block -->
+            <%- include('../partials/footer')%>
+    </table>
+</body>
+
+</html>

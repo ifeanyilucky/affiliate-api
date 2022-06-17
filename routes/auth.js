@@ -8,6 +8,7 @@ const {
   resetPassword,
   editProfile,
   changePassword,
+  verifyAccount,
 } = require('../controllers/auth');
 
 router.route('/register').post(register);
@@ -16,4 +17,5 @@ router.route('/profile/:id').patch(editProfile);
 router.route('/forgot-password').post(forgotPassword);
 router.route('/reset-password').patch(resetPassword);
 router.route('/password/:id').patch(changePassword);
+router.route('/verify-email/:token').patch(verifyAccount);
 module.exports = router;

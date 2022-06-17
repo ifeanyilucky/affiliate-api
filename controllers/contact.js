@@ -12,7 +12,7 @@ const Contact = async (req, res) => {
   `;
   await sendEmail({
     from: `${name} <support@lemox.co>`,
-    to: 'admin@lemox.co',
+    to: 'support@lemox.co',
     subject: `Contact message from ${email}`,
     text: textMessage,
   });

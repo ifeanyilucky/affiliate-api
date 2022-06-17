@@ -3,10 +3,13 @@ const properties = require('../models/properties');
 const User = require('../models/user');
 const { StatusCodes } = require('http-status-codes');
 const coinbase = require('coinbase-commerce-node');
+const ejs = require('ejs');
+const config = require('../config');
 const { NotFoundError, BadRequestError } = require('../errors');
 const Client = coinbase.Client;
 const { Charge } = coinbase.resources;
 const sendEmail = require('../utils/sendEmail');
+const path = require('path');
 const moment = require('moment');
 const {
   addDays,
@@ -33,12 +36,31 @@ const createInvestment = async (req, res) => {
     if (err) {
       res.status(400).send({ message: err.message });
     } else {
-      await sendEmail({
-        from: `Lemox Team <support@lemox.co>`,
-        to: user.email,
-        subject: 'Lemox user is requesting for withdrawal!',
-        text: 'welcomeMsg',
-      });
+      const fAmount = amount.toLocaleString();
+      ejs.renderFile(
+        path.join(__dirname, '../views/email/investment-complete.ejs'),
+        {
+          config,
+          title: 'Investment completed',
+          amount: `$ ${fAmount}`,
+          firstName: user.firstName,
+          propertyTitle: title,
+          id: response.id,
+        },
+        async (err, data) => {
+          if (err) {
+            console.log(err);
+          } else {
+            await sendEmail({
+              from: config.email.supportEmbed,
+              to: user.email,
+              subject: 'Investment completed',
+              text: data,
+            });
+          }
+        }
+      );
+
       res.status(200).send({
         hosted_url: response.hosted_url,
         id: response.id,
@@ -119,8 +141,8 @@ const updateInvestment = async (req, res) => {
 // const deletePayment = async (id) => await InvestModel.deleteOne({ id });
 
 const getAllInvestment = async (req, res) => {
-  const investment = await InvestModel.find({}).sort('createdAt');
-  // const investment = await InvestModel.find({ user: req.user.userId });
+  // const investment = await InvestModel.find({}).sort('createdAt');
+  const investment = await InvestModel.find({ user: req.user.userId });
   res.status(StatusCodes.OK).json(investment);
 };
 

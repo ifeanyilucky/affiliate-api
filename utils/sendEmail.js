@@ -5,16 +5,10 @@ const sendEmail = (options) => {
     host: 'lemox.co',
     port: 465,
     secure: true,
-    ssl: false,
-    ignoreTLS: false,
-    requireTLS: true,
+    ssl: true,
     auth: {
       user: process.env.MAIL_USERNAME,
       pass: process.env.MAIL_PASSWORD,
-    },
-    tls: {
-      secureProtocol: 'TLSv1_2_method',
-      rejectUnauthorized: false,
     },
   });
 

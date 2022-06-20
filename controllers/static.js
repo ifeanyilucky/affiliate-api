@@ -6,12 +6,18 @@ const { StatusCodes } = require('http-status-codes');
 const { NotFoundError, BadRequestError } = require('../errors');
 
 const getStaticInvestments = async (req, res) => {
-  const investments = await InvestModel.find({}).sort('createdAt');
+  const investments = await InvestModel.find({})
+    .sort({ createdAt: -1 })
+    .populate('user');
   res.status(StatusCodes.OK).json(investments);
 };
 
 const getStaticWithdrawal = async (req, res) => {
   const withdrawals = await withdrawal.find({});
-  res.status(StatusCodes.OK).json(withdrawals);
+  res
+    .status(StatusCodes.OK)
+    .json(withdrawals)
+    .sort({ createdAt: -1 })
+    .populate('user');
 };
 module.exports = { getStaticInvestments, getStaticWithdrawal };

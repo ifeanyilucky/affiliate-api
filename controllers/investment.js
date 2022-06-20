@@ -37,29 +37,40 @@ const createInvestment = async (req, res) => {
       res.status(400).send({ message: err.message });
     } else {
       const fAmount = amount.toLocaleString();
-      ejs.renderFile(
-        path.join(__dirname, '../views/email/investment-complete.ejs'),
-        {
-          config,
-          title: 'Investment completed',
-          amount: `$ ${fAmount}`,
-          firstName: user.firstName,
-          propertyTitle: title,
-          id: response.id,
-        },
-        async (err, data) => {
-          if (err) {
-            console.log(err);
-          } else {
-            await sendEmail({
-              from: config.email.supportEmbed,
-              to: user.email,
-              subject: 'Investment completed',
-              text: data,
-            });
+      if (response.timeline.at(-1).status === 'COMPLETED') {
+        ejs.renderFile(
+          path.join(__dirname, '../views/email/investment-complete.ejs'),
+          {
+            config,
+            title: 'Investment completed',
+            amount: `$ ${fAmount}`,
+            firstName: user.firstName,
+            propertyTitle: title,
+            id: response.id,
+          },
+          async (err, data) => {
+            if (err) {
+              console.log(err);
+            } else {
+              await sendEmail({
+                from: config.email.supportEmbed,
+                to: user.email,
+                subject: 'Investment completed',
+                text: data,
+              });
+            }
           }
-        }
-      );
+        );
+        await InvestModel.create({
+          ...req.body,
+          incrementAmount: amount,
+          charge: response,
+          property,
+          ethToken,
+          amount,
+          user: req.user.userId,
+        });
+      }
 
       res.status(200).send({
         hosted_url: response.hosted_url,
@@ -77,72 +88,30 @@ const successInvestment = async (req, res) => {
 
 const updateInvestment = async (req, res) => {
   const { id } = req.params;
+  const idArray = id.split(',');
+  console.log(idArray);
   const { incrementAmount, incrementedAt } = req.body;
   // update investment amount
-  const investment = InvestModel.findOneAndUpdate(
-    { _id: id },
-    { incrementAmount: incrementAmount, incrementedAt: incrementedAt },
-    { new: true }
-  );
-  if (!investment) {
-    throw new NotFoundError('Not found!');
+  let investment = [];
+  for (let i = 0; i < idArray.length; i += 1) {
+    investment[i] = await InvestModel.findOneAndUpdate(
+      { _id: idArray[i] },
+      { incrementAmount: incrementAmount, incrementedAt: incrementedAt },
+      { new: true }
+    );
+    if (!investment[i]) {
+      throw new NotFoundError('Not found!');
+    }
   }
 
   res.status(StatusCodes.OK).json(investment);
 };
 
-// const updateInvestment = async (req, res) => {
-//   const { id: investmentId } = req.params;
-//   // get the single investment
-//   const currentInvestment = await InvestModel.findOne({ _id: investmentId });
-//   if (!currentInvestment)
-//     throw new NotFoundError('investment with this ID not found!');
-
-//   const { amount, createdAt } = currentInvestment;
-//   console.log('current date', createdAt);
-//   // 7 days after
-//   // const sevenDaysAfter = new Date(new Date().setDate(new Date().getDate() + 7));
-//   const sevenDaysAfter = new Date(new Date().setDate(createdAt.getDate() + 7));
-//   console.log('seven days after', sevenDaysAfter);
-//   const daysInMilliseconds = 7 * 24 * 60 * 60 * 1000;
-//   console.log('days in milliseconds', daysInMilliseconds);
-
-//   // 10 percentage of amount
-//   const amountPercentage = (amount / 100) * 10;
-//   console.log('seven days after less createdAt', sevenDaysAfter - createdAt);
-//   setInterval(async () => {
-//     const updatedAmount = amount + amountPercentage;
-//     if (sevenDaysAfter - createdAt === daysInMilliseconds) {
-//       // update investment amount
-//       return await InvestModel.findByIdAndUpdate(
-//         investmentId,
-//         { incrementAmount: updatedAmount, incrementedAt: Date.now },
-//         { new: true }
-//       ).then((res) => {
-//         console.log(res);
-//       });
-//       // console.log(updatedInvestment);
-//       // console.log('1 second');
-//       // console.log(amount);
-//       // console.log(amountPercentage);
-//     }
-//     console.log(updatedAmount);
-//   }, daysInMilliseconds);
-// };
-
-// const updateAccount = (req, res) => {
-//   const {} = req.body;
-
-// }
-// const successPayment = async (id) =>
-//   await InvestModel.updateOne({ id }, { status: 'success' });
-// const updatePayment = async (id) =>
-//   await InvestModel.updateOne({ id }, { status: 'pending' });
-// const deletePayment = async (id) => await InvestModel.deleteOne({ id });
-
 const getAllInvestment = async (req, res) => {
   // const investment = await InvestModel.find({}).sort('createdAt');
-  const investment = await InvestModel.find({ user: req.user.userId });
+  const investment = await InvestModel.find({ user: req.user.userId }).sort({
+    createdAt: -1,
+  });
   res.status(StatusCodes.OK).json(investment);
 };
 
@@ -177,11 +146,12 @@ const chargeStatus = async (req, res) => {
 
 const getSingleInvestment = async (req, res) => {
   const { id } = req.params;
-  const investment = await InvestModel.findById(id);
-  if (!investment) {
-    throw new NotFoundError('No investment found');
-  }
-  res.status(StatusCodes.OK).json(investment);
+  console.log(id);
+  // const investment = await InvestModel.findById(id);
+  // if (!investment) {
+  //   throw new NotFoundError('No investment found');
+  // }
+  // res.status(StatusCodes.OK).json(investment);
 };
 
 const createProperty = async (req, res) => {

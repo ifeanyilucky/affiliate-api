@@ -59,6 +59,7 @@ app.get('/email/forgot-password', (req, res) =>
     config,
     title: 'Forgot your password',
     email: 'ifeanyilucky360@gmail.com',
+    url: 'https://lemox.co',
   })
 );
 app.get('/email/verify', (req, res) =>

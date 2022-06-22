@@ -3,16 +3,14 @@ const rateLimit = require('rate-limiter');
 
 const sendEmail = (options) => {
   const transporter = nodemailer.createTransport({
-    host: "smtp-mail.outlook.com", // hostname
-    secureConnection: false, // TLS requires secureConnection to be false
+    host: 'smtp-mail.outlook.com', // hostname
     port: 587, // port for secure SMTP
     auth: {
-        user: process.env.MAIL_USERNAME,
-        pass: process.env.MAIL_PASSWORD
+      user: process.env.MAIL_USERNAME,
+      pass: process.env.MAIL_PASSWORD,
     },
-  
   });
- 
+
   const mailOptions = {
     from: options.from,
     to: options.to,

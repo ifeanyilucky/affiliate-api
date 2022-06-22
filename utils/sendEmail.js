@@ -3,7 +3,7 @@ const rateLimit = require('rate-limiter');
 
 const sendEmail = (options) => {
   const transporter = nodemailer.createTransport({
-    host: 'smtp-mail.outlook.com', // hostname
+    host: 'smtp.office365.com', // hostname
     port: 587, // port for secure SMTP - TLS
     tls: {
       ciphers: 'SSLv3',

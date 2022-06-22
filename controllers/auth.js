@@ -129,7 +129,7 @@ const verifyAccount = async (req, res) => {
   await user.save();
 
   ejs.renderFile(
-    path.join(__dirname, '../email/signup-success'),
+    path.join(__dirname, '../views/email/signup-success.ejs'),
     {
       config,
       title: 'Your email has been verified',

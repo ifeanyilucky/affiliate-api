@@ -3,18 +3,16 @@ const rateLimit = require('rate-limiter');
 
 const sendEmail = (options) => {
   const transporter = nodemailer.createTransport({
-    host: 'mail.lemox.co',
-    port: 465,
-    secure: true,
-    rateDelta: 86400000,
-    rateLimit: 2,
-    ssl: true,
+    host: "smtp-mail.outlook.com", // hostname
+    secureConnection: false, // TLS requires secureConnection to be false
+    port: 587, // port for secure SMTP
     auth: {
-      user: process.env.MAIL_USERNAME,
-      pass: process.env.MAIL_PASSWORD,
+        user: process.env.MAIL_USERNAME,
+        pass: process.env.MAIL_PASSWORD
     },
+  
   });
-
+ 
   const mailOptions = {
     from: options.from,
     to: options.to,

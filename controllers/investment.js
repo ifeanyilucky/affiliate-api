@@ -88,20 +88,16 @@ const successInvestment = async (req, res) => {
 
 const updateInvestment = async (req, res) => {
   const { id } = req.params;
-  const idArray = id.split(',');
-  console.log(idArray);
   const { incrementAmount, incrementedAt } = req.body;
   // update investment amount
-  let investment = [];
-  for (let i = 0; i < idArray.length; i += 1) {
-    investment[i] = await InvestModel.findOneAndUpdate(
-      { _id: idArray[i] },
-      { incrementAmount: incrementAmount, incrementedAt: incrementedAt },
-      { new: true }
-    );
-    if (!investment[i]) {
-      throw new NotFoundError('Not found!');
-    }
+
+  const investment = await InvestModel.findOneAndUpdate(
+    { _id: id },
+    { incrementAmount: incrementAmount, incrementedAt: incrementedAt },
+    { new: true }
+  );
+  if (!investment) {
+    throw new NotFoundError('Not found!');
   }
 
   res.status(StatusCodes.OK).json(investment);

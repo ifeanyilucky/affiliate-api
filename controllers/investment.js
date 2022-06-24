@@ -6,8 +6,7 @@ const coinbase = require('coinbase-commerce-node');
 const ejs = require('ejs');
 const config = require('../config');
 const { NotFoundError, BadRequestError } = require('../errors');
-const Client = coinbase.Client;
-const { Charge } = coinbase.resources;
+const { Client, Webhook, resources } = require('coinbase-commerce-node');
 const sendEmail = require('../utils/sendEmail');
 const path = require('path');
 const moment = require('moment');
@@ -167,6 +166,61 @@ const getSingleProperty = async (req, res) => {
   res.status(StatusCodes.OK).json(property);
 };
 
+const sampleCharge = async (req, res) => {
+  const chargeData = {
+    description: 'Payment for this property',
+    cancel_url: 'https://google.com',
+    local_price: {
+      amount: '0.2',
+      currency: 'USD',
+    },
+    name: '1354 W 64th St, Chicago, IL 60636',
+    redirect_url: 'https://facebook.com',
+    pricing_type: 'fixed_price',
+
+    metadata: {
+      customer_id: '3949833',
+      customer_name: 'John Doe',
+    },
+  };
+  const charge = await Charge.create(chargeData);
+  res.send(charge);
+};
+
+const paymentHandler = async (req, res) => {
+  const webhookSecret = process.env.COINBASE_WEBHOOK_SECRET;
+  const signature = req.headers['x-cc-webhook-signature'];
+  const rawBody = req.rawBody;
+
+  try {
+    const event = await Webhook.verifySigHeader(
+      rawBody,
+      signature,
+      webhookSecret
+    );
+    if (event.type === 'charge:created') {
+      console.log('charge created');
+    }
+    if (event.type === 'charge.pending') {
+      console.log('charge is pending...');
+    }
+    if (event.type === 'charge:confirmed') {
+      console.log('charge confirmed');
+    }
+    if (event.type === 'charge:failed') {
+      console.log('charge failed');
+    }
+    if (event.type === 'charge:delayed') {
+      console.log('charge delayed');
+    }
+    if (event.type === 'charge:resolved') {
+      console.log('charge resolved');
+    }
+  } catch (err) {
+    console.log('webhook error');
+    console.log(err);
+  }
+};
 module.exports = {
   getSingleInvestment,
   getAllInvestment,
@@ -177,4 +231,6 @@ module.exports = {
   chargeStatus,
   updateInvestment,
   successInvestment,
+  sampleCharge,
+  paymentHandler,
 };

@@ -9,6 +9,7 @@ const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
 const config = require('./config');
+const morgan = require('morgan');
 
 const app = express();
 const authRouter = require('./routes/auth');
@@ -29,7 +30,15 @@ const connectDb = require('./db/connect');
 app.set('trust proxy', 1);
 // MIDDLEWARE
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 300 }));
-app.use(express.json({ limit: '50mb' }));
+app.use(morgan('dev'));
+app.use(
+  express.json({
+    limit: '50mb',
+    verify: (req, res, buf) => {
+      req.rawBody = buf;
+    },
+  })
+);
 app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
 app.use(
@@ -54,36 +63,6 @@ app.use(express.static(path.join(__dirname + '/public')));
 app.use(express.static(path.join(__dirname, 'views')));
 
 // EJS
-app.get('/email/forgot-password', (req, res) =>
-  res.render('email/forgot-password', {
-    config,
-    title: 'Forgot your password',
-    email: 'ifeanyilucky360@gmail.com',
-    url: 'https://lemox.co',
-  })
-);
-app.get('/email/verify', (req, res) =>
-  res.render('email/verify', { config, title: 'Verify your email' })
-);
-
-app.get('/email/id-verification-success', (req, res) =>
-  res.render('email/id-verification-success', {
-    title: 'You ID has been approved',
-    config,
-  })
-);
-
-const amount = 4500;
-app.get('/email/investment-completed', (req, res) =>
-  res.render('email/investment-complete', {
-    config,
-    title: 'Investment completed',
-    firstName: 'Ifeanyi',
-    amount: amount.toLocaleString(),
-    id: '49dgi9vndd',
-    propertyTitle: 'Lisbon, Canada',
-  })
-);
 
 app.set('view engine', 'ejs');
 app.get('/', (req, res) => {

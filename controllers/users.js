@@ -3,9 +3,9 @@ const { StatusCodes } = require('http-status-codes');
 const { NotFoundError } = require('../errors');
 
 const getUsers = async (req, res) => {
-  const users = await User.find({ role: 'investor' }).select(
-    '-password -passwordResetToken -passwordResetExpire'
-  );
+  const users = await User.find({ role: 'investor' })
+    .select('-password -passwordResetToken -passwordResetExpire')
+    .sort({ createdAt: -1 });
   res.status(StatusCodes.OK).json(users);
 };
 
@@ -15,6 +15,5 @@ const getUser = async (req, res) => {
   if (!user) throw new NotFoundError('User not found');
   res.status(StatusCodes.OK).json(user);
 };
-
 
 module.exports = { getUser, getUsers };

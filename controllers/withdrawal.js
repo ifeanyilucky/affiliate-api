@@ -14,7 +14,7 @@ const withdrawFunds = async (req, res) => {
   const withdrawMsg = `
   <div>
     <h6>User with this email:<strong> ${email}</strong> has requested a withdrawal on their Lemox account</h6>
-    <p>Amount: {amount}</p>
+    <p>Amount: ${amount}</p>
     <p>BTC Wallet Address: ${btcWalletAddress} </p>
   </div>
   

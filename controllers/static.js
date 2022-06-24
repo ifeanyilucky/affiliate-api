@@ -13,11 +13,10 @@ const getStaticInvestments = async (req, res) => {
 };
 
 const getStaticWithdrawal = async (req, res) => {
-  const withdrawals = await withdrawal.find({});
-  res
-    .status(StatusCodes.OK)
-    .json(withdrawals)
+  const withdrawals = await withdrawal
+    .find({})
     .sort({ createdAt: -1 })
     .populate('user');
+  res.status(StatusCodes.OK).json(withdrawals);
 };
 module.exports = { getStaticInvestments, getStaticWithdrawal };

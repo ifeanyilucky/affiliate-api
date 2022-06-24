@@ -13,18 +13,6 @@ const sendEmail = (options) => {
       user: process.env.MAIL_USERNAME,
       pass: process.env.MAIL_PASSWORD,
     },
-
-    // host: 'lemox.co', // hostname
-    // secureConnection: true, // TLS requires secureConnection to be false
-    // port: 587, // port for secure SMTP
-    // auth: {
-    //   user: process.env.MAIL_USERNAME,
-    //   pass: process.env.MAIL_PASSWORD,
-    // },
-    // debug: true,
-    // tls: {
-    //   rejectUnauthorized: false,
-    // },
   });
 
   const mailOptions = {

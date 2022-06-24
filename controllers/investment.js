@@ -7,6 +7,7 @@ const ejs = require('ejs');
 const config = require('../config');
 const { NotFoundError, BadRequestError } = require('../errors');
 const { Client, Webhook, resources } = require('coinbase-commerce-node');
+const { Charge } = resources;
 const sendEmail = require('../utils/sendEmail');
 const path = require('path');
 const moment = require('moment');
@@ -31,7 +32,7 @@ const createInvestment = async (req, res) => {
     },
     pricing_type: 'fixed_price',
   };
-  Charge.create(chargeData, async (err, response) => {
+  await Charge.create(chargeData, async (err, response) => {
     if (err) {
       res.status(400).send({ message: err.message });
     } else {

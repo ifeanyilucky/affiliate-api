@@ -33,7 +33,7 @@ const InvestmentSchema = new Schema({
     ref: 'User',
   },
   property: {
-    type: Object,
+    type: String,
   },
 });
 

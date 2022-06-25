@@ -31,47 +31,16 @@ const createInvestment = async (req, res) => {
       currency: 'USD',
     },
     pricing_type: 'fixed_price',
+    metadata: {
+      customer_id: req.user.userId,
+      customer_name: `${user.firstName} ${user.lastName}`,
+      ethToken: ethToken,
+    },
   };
   await Charge.create(chargeData, async (err, response) => {
     if (err) {
       res.status(400).send({ message: err.message });
     } else {
-      const fAmount = amount.toLocaleString();
-      if (response.timeline.at(-1).status === 'COMPLETED') {
-        ejs.renderFile(
-          path.join(__dirname, '../views/email/investment-complete.ejs'),
-          {
-            config,
-            title: 'Investment completed',
-            amount: `$ ${fAmount}`,
-            firstName: user.firstName,
-            propertyTitle: title,
-            id: response.id,
-          },
-          async (err, data) => {
-            if (err) {
-              console.log(err);
-            } else {
-              await sendEmail({
-                from: config.email.supportEmbed,
-                to: user.email,
-                subject: 'Investment completed',
-                text: data,
-              });
-            }
-          }
-        );
-        await InvestModel.create({
-          ...req.body,
-          incrementAmount: amount,
-          charge: response,
-          property,
-          ethToken,
-          amount,
-          user: req.user.userId,
-        });
-      }
-
       res.status(200).send({
         hosted_url: response.hosted_url,
         id: response.id,
@@ -194,13 +163,45 @@ const paymentHandler = async (req, res) => {
   const rawBody = req.rawBody;
 
   try {
-    const event = await Webhook.verifySigHeader(
-      rawBody,
-      signature,
-      webhookSecret
-    );
+    const event = Webhook.verifySigHeader(rawBody, signature, webhookSecret);
     if (event.type === 'charge:created') {
       console.log('charge created');
+      const fAmount = event.data.pricing.local.amount.toLocaleString();
+      const user = await User.findOne({ _id: event.data.customer_id });
+
+      ejs.renderFile(
+        path.join(__dirname, '../views/email/investment-complete.ejs'),
+        {
+          config,
+          title: 'Investment completed',
+          amount: `$ ${fAmount}`,
+          firstName: user.firstName,
+          propertyTitle: title,
+          id: event.data.id,
+        },
+        async (err, data) => {
+          if (err) {
+            console.log(err);
+          } else {
+            await sendEmail({
+              from: config.email.supportEmbed,
+              to: user.email,
+              subject: 'Investment completed',
+              text: data,
+            });
+          }
+        }
+      );
+
+      await InvestModel.create({
+        ...req.body,
+        incrementAmount: event.pricing.local.amount,
+        charge: event.data,
+        property: event.name,
+        ethToken: event.data.ethToken,
+        amount: event.data.pricing.local.amount,
+        user: event.data.customer_id,
+      });
     }
     if (event.type === 'charge.pending') {
       console.log('charge is pending...');

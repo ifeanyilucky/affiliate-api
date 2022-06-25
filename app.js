@@ -29,15 +29,7 @@ const NotFound = require('./middlewares/not-found');
 // CONNECT DATABASE
 const connectDb = require('./db/connect');
 const haltOnTImedOut = (req, res, next) => {
-  if (!req.timedout) {
-    next();
-  } else {
-    res.status(408).json({
-      message: 'Timeout',
-      status: 408,
-      content: 'Timeout',
-    });
-  }
+  if (!req.timedout) next();
 };
 app.set('trust proxy', 1);
 // MIDDLEWARE

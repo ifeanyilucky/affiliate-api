@@ -169,11 +169,12 @@ const paymentHandler = async (req, res) => {
     const event = Webhook.verifyEventBody(rawBody, signature, webhookSecret);
     if (event.type === 'charge:created') {
       console.log('charge created');
-      const fAmount = event.data.pricing.local.amount.toLocaleString();
+
       const investment = await InvestModel.findOne({
         chargeId: event.data.id,
       });
       if (!investment) {
+        const fAmount = event.data.pricing.local.amount.toLocaleString();
         ejs.renderFile(
           path.join(__dirname, '../views/email/investment-complete.ejs'),
           {

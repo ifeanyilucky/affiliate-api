@@ -34,6 +34,9 @@ const createInvestment = async (req, res) => {
     metadata: {
       customer_id: req.user.userId,
       customer_name: `${user.firstName} ${user.lastName}`,
+      customer_email: user.email,
+      customer_first_name: user.firstname,
+      property_id: property._id,
       ethToken: ethToken,
     },
   };
@@ -167,7 +170,6 @@ const paymentHandler = async (req, res) => {
     if (event.type === 'charge:created') {
       console.log('charge created');
       const fAmount = event.data.pricing.local.amount.toLocaleString();
-      const user = await User.findOne({ _id: event.data.customer_id });
 
       ejs.renderFile(
         path.join(__dirname, '../views/email/investment-complete.ejs'),
@@ -175,7 +177,7 @@ const paymentHandler = async (req, res) => {
           config,
           title: 'Investment completed',
           amount: `$ ${fAmount}`,
-          firstName: user.firstName,
+          firstName: event.data.metadata.customer_first_name,
           propertyTitle: title,
           id: event.data.id,
         },
@@ -185,7 +187,7 @@ const paymentHandler = async (req, res) => {
           } else {
             await sendEmail({
               from: config.email.supportEmbed,
-              to: user.email,
+              to: event.data.metadata.customer_email,
               subject: 'Investment completed',
               text: data,
             });
@@ -198,9 +200,10 @@ const paymentHandler = async (req, res) => {
         incrementAmount: event.pricing.local.amount,
         charge: event.data,
         property: event.name,
-        ethToken: event.data.ethToken,
+        ethToken: event.data.meta.data.ethToken,
         amount: event.data.pricing.local.amount,
-        user: event.data.customer_id,
+        user: event.data.metadata.customer_id,
+        propertyId: event.metadata.property_id,
       });
     }
     if (event.type === 'charge.pending') {

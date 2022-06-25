@@ -35,6 +35,9 @@ const InvestmentSchema = new Schema({
   property: {
     type: String,
   },
+  propertyId: {
+    type: String,
+  },
 });
 
 InvestmentSchema.pre('save', function (next) {

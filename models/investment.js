@@ -7,6 +7,10 @@ const InvestmentSchema = new Schema({
     type: Object,
     required: [true, 'Please provide charge'],
   },
+  chargeCode: {
+    type: String,
+    required: [true, 'Charge Code not found'],
+  },
   ethToken: {
     type: String,
   },
@@ -20,7 +24,7 @@ const InvestmentSchema = new Schema({
     default: Date.now,
   },
   incrementedAt: {
-    type: String,
+    type: Date,
     default: Date.now,
   },
   incrementAmount: {
@@ -36,6 +40,9 @@ const InvestmentSchema = new Schema({
     type: String,
   },
   propertyId: {
+    type: String,
+  },
+  chargeId: {
     type: String,
   },
 });

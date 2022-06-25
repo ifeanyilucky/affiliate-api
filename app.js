@@ -10,6 +10,7 @@ const rateLimit = require('express-rate-limit');
 const path = require('path');
 const config = require('./config');
 const morgan = require('morgan');
+const throng = require('throng');
 
 const app = express();
 const authRouter = require('./routes/auth');
@@ -79,6 +80,7 @@ const PORT = process.env.PORT || 4000;
 const start = async () => {
   try {
     await connectDb(process.env.MONGODB_URI);
+
     app.listen(PORT, () => {
       console.log(`Server is running at http://localhost:${PORT}`);
     });

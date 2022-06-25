@@ -35,7 +35,7 @@ const createInvestment = async (req, res) => {
       customer_id: req.user.userId,
       customer_name: `${user.firstName} ${user.lastName}`,
       customer_email: user.email,
-      customer_first_name: user.firstname,
+      customer_first_name: user.firstName,
       property_id: property._id,
       ethToken: ethToken,
     },
@@ -166,45 +166,55 @@ const paymentHandler = async (req, res) => {
   const rawBody = req.rawBody;
 
   try {
-    const event = Webhook.verifySigHeader(rawBody, signature, webhookSecret);
+    const event = Webhook.verifyEventBody(rawBody, signature, webhookSecret);
     if (event.type === 'charge:created') {
       console.log('charge created');
       const fAmount = event.data.pricing.local.amount.toLocaleString();
-
-      ejs.renderFile(
-        path.join(__dirname, '../views/email/investment-complete.ejs'),
-        {
-          config,
-          title: 'Investment completed',
-          amount: `$ ${fAmount}`,
-          firstName: event.data.metadata.customer_first_name,
-          propertyTitle: title,
-          id: event.data.id,
-        },
-        async (err, data) => {
-          if (err) {
-            console.log(err);
-          } else {
-            await sendEmail({
-              from: config.email.supportEmbed,
-              to: event.data.metadata.customer_email,
-              subject: 'Investment completed',
-              text: data,
-            });
-          }
-        }
-      );
-
-      await InvestModel.create({
-        ...req.body,
-        incrementAmount: event.pricing.local.amount,
-        charge: event.data,
-        property: event.name,
-        ethToken: event.data.meta.data.ethToken,
-        amount: event.data.pricing.local.amount,
-        user: event.data.metadata.customer_id,
-        propertyId: event.metadata.property_id,
+      const investment = await InvestModel.findOne({
+        chargeId: event.data.id,
       });
+      if (!investment) {
+        ejs.renderFile(
+          path.join(__dirname, '../views/email/investment-complete.ejs'),
+          {
+            config,
+            title: 'Investment completed',
+            amount: `$ ${fAmount}`,
+            firstName: event.data.metadata.customer_first_name,
+            propertyTitle: event.data.description,
+            id: event.data.id,
+          },
+          async (err, data) => {
+            if (err) {
+              console.log(err);
+            } else {
+              await sendEmail({
+                from: config.email.supportEmbed,
+                to: event.data.metadata.customer_email,
+                subject: 'Investment completed',
+                text: data,
+              });
+            }
+          }
+        );
+
+        await InvestModel.create({
+          ...req.body,
+          incrementAmount: event.data.pricing.local.amount,
+          charge: event.data,
+          property: event.data.description,
+          ethToken: event.data.metadata.ethToken,
+          amount: event.data.pricing.local.amount,
+          user: event.data.metadata.customer_id,
+          propertyId: event.data.metadata.property_id,
+          chargeId: event.data.id,
+          chargeCode: event.data.code,
+        });
+      } else {
+        console.log(
+          'Payment was successful and investment has been added to the database'
+        );
+      }
     }
     if (event.type === 'charge.pending') {
       console.log('charge is pending...');

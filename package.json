@@ -17,6 +17,7 @@
     "bcryptjs": "^2.4.3",
     "coinbase-commerce-node": "^1.0.4",
     "coingate-v2": "^1.0.1",
+    "connect-timeout": "^1.9.0",
     "cors": "^2.8.5",
     "date-fns": "^2.28.0",
     "dotenv": "^16.0.1",

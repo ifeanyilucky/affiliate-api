@@ -44,7 +44,7 @@ const createInvestment = async (req, res) => {
     if (err) {
       res.status(400).send({ message: err.message });
     } else {
-      res.status(StatusCodes.CREATED).send({
+      res.status(200).send({
         hosted_url: response.hosted_url,
         id: response.id,
         code: response.code,

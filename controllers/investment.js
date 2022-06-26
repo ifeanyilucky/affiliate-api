@@ -44,7 +44,7 @@ const createInvestment = async (req, res) => {
     if (err) {
       res.status(400).send({ message: err.message });
     } else {
-      res.status(200).send({
+      res.status(StatusCodes.CREATED).send({
         hosted_url: response.hosted_url,
         id: response.id,
         code: response.code,
@@ -83,35 +83,6 @@ const getAllInvestment = async (req, res) => {
   res.status(StatusCodes.OK).json(investment);
 };
 
-const chargeStatus = async (req, res) => {
-  let id = req.body.id;
-  Charge.retrieve(id, (err, charge) => {
-    console.log(err);
-    console.log(charge);
-
-    // if (charge['timeline'][0]['status'] == 'NEW') {
-    //   try {
-    //     if (
-    //       charge['timeline'][1]['status'] == 'PEDNING' &&
-    //       charge['timeline'].length == 2
-    //     ) {
-    //       return res
-    //         .status(200)
-    //         .json({ message: 'Payment pending, awaiting confirmations.' });
-    //     } else if (charge['timeline'][1]['status'] == 'EXPIRED') {
-    //       return res.status(400).json({ message: 'Payment expired' });
-    //     } else if (charge['timeline'][2]['status'] == 'COMPLETED') {
-    //       return res.status(200).json({ message: 'Payment completed.' });
-    //     }
-    //   } catch (err) {
-    //     return res.status(200).json({ message: 'No payment detected' });
-    //   }
-    // } else {
-    //   return res.status(400).json({ message: 'Charge not found.' });
-    // }
-  });
-};
-
 const getSingleInvestment = async (req, res) => {
   const { id } = req.params;
   console.log(id);
@@ -137,27 +108,6 @@ const getSingleProperty = async (req, res) => {
   const property = await properties.findById(id);
   if (!property) throw new NotFoundError('No property found!');
   res.status(StatusCodes.OK).json(property);
-};
-
-const sampleCharge = async (req, res) => {
-  const chargeData = {
-    description: 'Payment for this property',
-    cancel_url: 'https://google.com',
-    local_price: {
-      amount: '0.2',
-      currency: 'USD',
-    },
-    name: '1354 W 64th St, Chicago, IL 60636',
-    redirect_url: 'https://facebook.com',
-    pricing_type: 'fixed_price',
-
-    metadata: {
-      customer_id: '3949833',
-      customer_name: 'John Doe',
-    },
-  };
-  const charge = await Charge.create(chargeData);
-  res.send(charge);
 };
 
 const paymentHandler = async (req, res) => {
@@ -203,11 +153,10 @@ const paymentHandler = async (req, res) => {
           ...req.body,
           incrementAmount: event.data.pricing.local.amount,
           charge: event.data,
-          property: event.data.description,
+          property: event.data.metadata.property_id,
           ethToken: event.data.metadata.ethToken,
           amount: event.data.pricing.local.amount,
           user: event.data.metadata.customer_id,
-          propertyId: event.data.metadata.property_id,
           chargeId: event.data.id,
           chargeCode: event.data.code,
         });
@@ -217,7 +166,7 @@ const paymentHandler = async (req, res) => {
         );
       }
     }
-    if (event.type === 'charge.pending') {
+    if (event.type === 'charge:pending') {
       console.log('charge is pending...');
     }
     if (event.type === 'charge:confirmed') {
@@ -244,9 +193,7 @@ module.exports = {
   createProperty,
   getProperties,
   getSingleProperty,
-  chargeStatus,
   updateInvestment,
   successInvestment,
-  sampleCharge,
   paymentHandler,
 };

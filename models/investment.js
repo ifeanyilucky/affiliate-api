@@ -37,10 +37,12 @@ const InvestmentSchema = new Schema({
     ref: 'User',
   },
   property: {
-    type: String,
+    type: Schema.Types.ObjectId,
+    ref: 'Property',
   },
   propertyId: {
-    type: String,
+    type: Schema.Types.ObjectId,
+    ref: 'Property',
   },
   chargeId: {
     type: String,

@@ -11,6 +11,7 @@ const { Charge } = resources;
 const sendEmail = require('../utils/sendEmail');
 const path = require('path');
 const moment = require('moment');
+const axios = require('axios');
 const {
   addDays,
   getMilliseconds,
@@ -77,9 +78,11 @@ const updateInvestment = async (req, res) => {
 
 const getAllInvestment = async (req, res) => {
   // const investment = await InvestModel.find({}).sort('createdAt');
-  const investment = await InvestModel.find({ user: req.user.userId }).sort({
-    createdAt: -1,
-  });
+  const investment = await InvestModel.find({ user: req.user.userId })
+    .sort({
+      createdAt: -1,
+    })
+    .populate('property');
   res.status(StatusCodes.OK).json(investment);
 };
 
@@ -160,6 +163,20 @@ const paymentHandler = async (req, res) => {
           chargeId: event.data.id,
           chargeCode: event.data.code,
         });
+
+        // const config = {
+        //   ...req.body,
+        //   incrementAmount: event.data.pricing.local.amount,
+        //   charge: event.data,
+        //   property: event.data.metadata.property_id,
+        //   ethToken: event.data.metadata.ethToken,
+        //   amount: event.data.pricing.local.amount,
+        //   user: event.data.metadata.customer_id,
+        //   chargeId: event.data.id,
+        //   chargeCode: event.data.code,
+        // }
+        // await axios.
+        // (process.env.MICROSERVICE2, )
       } else {
         console.log(
           'Payment was successful and investment has been added to the database'

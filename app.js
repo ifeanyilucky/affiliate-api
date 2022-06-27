@@ -69,7 +69,20 @@ app.use(express.static(path.join(__dirname + '/public')));
 app.use(express.static(path.join(__dirname, 'views')));
 
 // EJS
+app.get('/email/investment-completed', (req, res) =>
+  res.render('email/investment-complete', {
+    config,
+    title: 'Investment completed',
+    firstName: 'Ifeanyi',
+    amount: 5000,
+    id: '49dgi9vndd',
+    propertyTitle: 'Lisbon, Canada',
+  })
+);
 
+app.get('/', (req, res) => {
+  res.render('email/investment-complete');
+});
 app.set('view engine', 'ejs');
 app.get('/', (req, res) => {
   res.send(
@@ -77,6 +90,7 @@ app.get('/', (req, res) => {
     <p>There's no documentation on how to use API</p> `
   );
 });
+
 app.use(NotFound);
 app.use(errorHandlerMiddleware);
 
@@ -85,7 +99,6 @@ const PORT = process.env.PORT || 4000;
 const start = async () => {
   try {
     await connectDb(process.env.MONGODB_URI);
-
     app.listen(PORT, () => {
       console.log(`Server is running at http://localhost:${PORT}`);
     });

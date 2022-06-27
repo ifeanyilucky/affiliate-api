@@ -8,6 +8,7 @@ const { NotFoundError, BadRequestError } = require('../errors');
 const getStaticInvestments = async (req, res) => {
   const investments = await InvestModel.find({})
     .sort({ createdAt: -1 })
+    .populate('property')
     .populate('user');
   res.status(StatusCodes.OK).json(investments);
 };

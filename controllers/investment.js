@@ -122,6 +122,12 @@ const paymentHandler = async (req, res) => {
     const event = Webhook.verifyEventBody(rawBody, signature, webhookSecret);
     if (event.type === 'charge:created') {
       console.log('charge created');
+    }
+    if (event.type === 'charge:pending') {
+      console.log('charge is pending...');
+    }
+    if (event.type === 'charge:confirmed') {
+      console.log('charge confirmed');
 
       const investment = await InvestModel.findOne({
         chargeId: event.data.id,
@@ -163,31 +169,11 @@ const paymentHandler = async (req, res) => {
           chargeId: event.data.id,
           chargeCode: event.data.code,
         });
-
-        // const config = {
-        //   ...req.body,
-        //   incrementAmount: event.data.pricing.local.amount,
-        //   charge: event.data,
-        //   property: event.data.metadata.property_id,
-        //   ethToken: event.data.metadata.ethToken,
-        //   amount: event.data.pricing.local.amount,
-        //   user: event.data.metadata.customer_id,
-        //   chargeId: event.data.id,
-        //   chargeCode: event.data.code,
-        // }
-        // await axios.
-        // (process.env.MICROSERVICE2, )
       } else {
         console.log(
           'Payment was successful and investment has been added to the database'
         );
       }
-    }
-    if (event.type === 'charge:pending') {
-      console.log('charge is pending...');
-    }
-    if (event.type === 'charge:confirmed') {
-      console.log('charge confirmed');
     }
     if (event.type === 'charge:failed') {
       console.log('charge failed');

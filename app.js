@@ -10,8 +10,6 @@ const rateLimit = require('express-rate-limit');
 const path = require('path');
 const config = require('./config');
 const morgan = require('morgan');
-const throng = require('throng');
-const timeout = require('connect-timeout');
 
 const app = express();
 const authRouter = require('./routes/auth');
@@ -28,14 +26,11 @@ const NotFound = require('./middlewares/not-found');
 
 // CONNECT DATABASE
 const connectDb = require('./db/connect');
-const haltOnTImedOut = (req, res, next) => {
-  if (!req.timedout) next();
-};
+
 app.set('trust proxy', 1);
 // MIDDLEWARE
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 300 }));
 app.use(morgan('dev'));
-app.use(timeout('20s'));
 app.use(
   express.json({
     limit: '50mb',
@@ -53,7 +48,6 @@ app.use(
   })
 );
 app.use(xss());
-app.use(haltOnTImedOut);
 
 // ROUTES
 app.use('/api/v1/auth/', authRouter);

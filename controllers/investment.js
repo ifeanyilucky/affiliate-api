@@ -188,6 +188,7 @@ const paymentHandler = async (req, res) => {
     console.log('webhook error');
     console.log(err);
   }
+  console.log(req.rawBody);
 };
 module.exports = {
   getSingleInvestment,

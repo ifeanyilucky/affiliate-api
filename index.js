@@ -38,23 +38,20 @@ function rawBody(req, res, next) {
 
   req.on('data', function (chunk) {
     data += chunk;
-  });
-
-  req.on('end', function () {
     if (req.originalUrl.includes('payment-handler')) {
       req.rawBody = data;
     }
-
-    next();
   });
+
+  next();
 }
+app.use(rawBody);
 app.use(
   express.json({
     limit: '50mb',
   })
 );
 app.use(express.urlencoded({ extended: true }));
-app.use(rawBody);
 
 app.use(helmet());
 app.use(

@@ -31,15 +31,29 @@ app.set('trust proxy', 1);
 // MIDDLEWARE
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 300 }));
 app.use(morgan('dev'));
+function rawBody(req, res, next) {
+  req.setEncoding('utf8');
+
+  var data = '';
+
+  req.on('data', function (chunk) {
+    data += chunk;
+  });
+
+  req.on('end', function () {
+    req.rawBody = data;
+
+    next();
+  });
+}
 app.use(
   express.json({
     limit: '50mb',
-    verify: (req, res, buf) => {
-      req.rawBody = buf;
-    },
   })
 );
 app.use(express.urlencoded({ extended: true }));
+app.use(rawBody);
+
 app.use(helmet());
 app.use(
   cors({
@@ -90,6 +104,7 @@ const PORT = process.env.PORT || 4000;
 const start = async () => {
   try {
     await connectDb(process.env.MONGODB_URI);
+
     app.listen(PORT, () => {
       console.log(`Server is running at http://localhost:${PORT}`);
     });

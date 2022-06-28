@@ -41,10 +41,8 @@ app.use((req, res, next) => {
         req.rawBody = buf;
       },
     });
-    next(); // Do nothing with the body because I need it in a raw state.
-  } else {
-    next();
   }
+  next();
 });
 express.json({
   limit: '50mb',

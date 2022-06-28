@@ -33,20 +33,16 @@ app.set('trust proxy', 1);
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 300 }));
 app.use(morgan('dev'));
 
-app.use((req, res, next) => {
+app.use(
   bodyParser.json({
-    verify: function (req, res, buf, encoding) {
-      req.rawBody = buf;
+    verify: (req, res, buf, next) => {
+      if (req.originalUrl === '/api/v1/investment/payment-handler') {
+        req.rawBody = buf;
+      }
     },
-  });
-  console.log(req.originalUrl)
-
-  next();
-});
-express.json({
-  limit: '50mb',
-});
-app.use(express.urlencoded({ extended: true }));
+  })
+);
+app.use(bodyParser.json());
 
 app.use(helmet());
 app.use(
@@ -70,18 +66,6 @@ app.use('/api/v1/contact', contact);
 app.use(express.static(path.join(__dirname + '/public')));
 app.use(express.static(path.join(__dirname, 'views')));
 
-// EJS
-app.get('/email/investment-completed', (req, res) =>
-  res.render('email/investment-complete', {
-    config,
-    title: 'Investment completed',
-    firstName: 'Ifeanyi',
-    amount: 5000,
-    id: '49dgi9vndd',
-    propertyTitle: 'Lisbon, Canada',
-  })
-);
-
 app.set('view engine', 'ejs');
 app.get('/', (req, res) => {
   res.send(
@@ -93,7 +77,7 @@ app.get('/', (req, res) => {
 app.use(NotFound);
 app.use(errorHandlerMiddleware);
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 4000;
 
 const start = async () => {
   try {

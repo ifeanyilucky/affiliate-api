@@ -37,7 +37,7 @@ const createInvestment = async (req, res) => {
       customer_name: `${user.firstName} ${user.lastName}`,
       customer_email: user.email,
       customer_first_name: user.firstName,
-      property_id: '5678u9ipktyrgf',
+      property_id: property._id,
       ethToken: ethToken,
     },
   };
@@ -188,7 +188,6 @@ const paymentHandler = async (req, res) => {
     console.log('webhook error');
     console.log(err);
   }
-  console.log(req.rawBody);
 };
 module.exports = {
   getSingleInvestment,

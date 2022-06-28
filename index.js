@@ -41,7 +41,9 @@ function rawBody(req, res, next) {
   });
 
   req.on('end', function () {
-    req.rawBody = data;
+    if (req.originalUrl.includes('payment-handler')) {
+      req.rawBody = data;
+    }
 
     next();
   });
@@ -99,7 +101,7 @@ app.get('/', (req, res) => {
 app.use(NotFound);
 app.use(errorHandlerMiddleware);
 
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 5000;
 
 const start = async () => {
   try {

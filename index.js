@@ -74,9 +74,6 @@ app.get('/email/investment-completed', (req, res) =>
   })
 );
 
-app.get('/', (req, res) => {
-  res.render('email/investment-complete');
-});
 app.set('view engine', 'ejs');
 app.get('/', (req, res) => {
   res.send(

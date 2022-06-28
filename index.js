@@ -10,6 +10,7 @@ const rateLimit = require('express-rate-limit');
 const path = require('path');
 const config = require('./config');
 const morgan = require('morgan');
+const bodyParser = require('body-parser');
 
 const app = express();
 const authRouter = require('./routes/auth');
@@ -31,28 +32,11 @@ app.set('trust proxy', 1);
 // MIDDLEWARE
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 300 }));
 app.use(morgan('dev'));
-app.use(express.urlencoded({ extended: true }));
-function rawBody(req, res, next) {
-  req.setEncoding('utf8');
-
-  var data = '';
-
-  req.on('data', function (chunk) {
-    data += chunk;
-  });
-
-  req.on('end', function () {
-    if (req.originalUrl.includes('payment-handler')) {
-      req.rawBody = data;
-    }
-
-    next();
-  });
-}
-app.use(rawBody);
 app.use(
-  express.json({
-    limit: '50mb',
+  bodyParser.json({
+    verify: function (req, res, buf, encoding) {
+      req.rawBody = buf;
+    },
   })
 );
 

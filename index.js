@@ -32,6 +32,7 @@ app.set('trust proxy', 1);
 // MIDDLEWARE
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 300 }));
 app.use(morgan('dev'));
+app.use(express.urlencoded({ extended: true }));
 app.use((req, res, next) => {
   const url = req.originalUrl;
   if (url.includes('payment-handler')) {
@@ -42,7 +43,9 @@ app.use((req, res, next) => {
     });
     next(); // Do nothing with the body because I need it in a raw state.
   } else {
-    express.json(); // ONLY do express.json() if the received request is NOT a WebHook from Stripe.
+    express.json({
+      limit: '50mb',
+    });
   }
 });
 

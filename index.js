@@ -34,14 +34,13 @@ app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 300 }));
 app.use(morgan('dev'));
 
 app.use((req, res, next) => {
-  const url = req.originalUrl;
-  if (url.includes('payment-handler')) {
-    bodyParser.json({
-      verify: function (req, res, buf, encoding) {
-        req.rawBody = buf;
-      },
-    });
-  }
+  bodyParser.json({
+    verify: function (req, res, buf, encoding) {
+      req.rawBody = buf;
+    },
+  });
+  console.log(req.originalUrl)
+
   next();
 });
 express.json({

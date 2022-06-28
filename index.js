@@ -31,6 +31,7 @@ app.set('trust proxy', 1);
 // MIDDLEWARE
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 300 }));
 app.use(morgan('dev'));
+app.use(express.urlencoded({ extended: true }));
 function rawBody(req, res, next) {
   req.setEncoding('utf8');
 
@@ -38,12 +39,15 @@ function rawBody(req, res, next) {
 
   req.on('data', function (chunk) {
     data += chunk;
+  });
+
+  req.on('end', function () {
     if (req.originalUrl.includes('payment-handler')) {
       req.rawBody = data;
     }
-  });
 
-  next();
+    next();
+  });
 }
 app.use(rawBody);
 app.use(
@@ -51,7 +55,6 @@ app.use(
     limit: '50mb',
   })
 );
-app.use(express.urlencoded({ extended: true }));
 
 app.use(helmet());
 app.use(

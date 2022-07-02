@@ -61,12 +61,29 @@ const successInvestment = async (req, res) => {
 
 const updateInvestment = async (req, res) => {
   const { id } = req.params;
-  const { incrementAmount, incrementedAt } = req.body;
+  const {
+    incrementAmount,
+    incrementedAt,
+    minimumRoi,
+    minimumReturn,
+    topUpInterval,
+    duration,
+    title,
+    amount,
+  } = req.body;
   // update investment amount
 
   const investment = await InvestModel.findOneAndUpdate(
     { _id: id },
-    { incrementAmount: incrementAmount, incrementedAt: incrementedAt },
+    {
+      incrementAmount: incrementAmount,
+      minimumRoi,
+      minimumReturn,
+      topUpInterval,
+      duration,
+      title,
+      amount,
+    },
     { new: true }
   );
   if (!investment) {
@@ -78,7 +95,10 @@ const updateInvestment = async (req, res) => {
 
 const getAllInvestment = async (req, res) => {
   // const investment = await InvestModel.find({}).sort('createdAt');
-  const investment = await InvestModel.find({ user: req.user.userId })
+  const investment = await InvestModel.find({
+    user: req.user.userId,
+    status: 'success',
+  })
     .sort({
       createdAt: -1,
     })
@@ -89,11 +109,13 @@ const getAllInvestment = async (req, res) => {
 const getSingleInvestment = async (req, res) => {
   const { id } = req.params;
   console.log(id);
-  // const investment = await InvestModel.findById(id);
-  // if (!investment) {
-  //   throw new NotFoundError('No investment found');
-  // }
-  // res.status(StatusCodes.OK).json(investment);
+  const investment = await InvestModel.findOne({ _id: id }).populate(
+    'property'
+  );
+  if (!investment) {
+    throw new NotFoundError('No investment found');
+  }
+  res.status(StatusCodes.OK).json(investment);
 };
 
 const createProperty = async (req, res) => {
@@ -113,6 +135,13 @@ const getSingleProperty = async (req, res) => {
   res.status(StatusCodes.OK).json(property);
 };
 
+const adminUpdate = async (req, res) => {
+  const { id } = req.params;
+  const investment = InvestModel.findByIdAndUpdate({ _id: id });
+
+  res.status(StatusCodes.ACCEPTED).json(investment);
+};
+
 const paymentHandler = async (req, res) => {
   const webhookSecret = process.env.COINBASE_WEBHOOK_SECRET;
   const signature = req.headers['x-cc-webhook-signature'];
@@ -122,12 +151,61 @@ const paymentHandler = async (req, res) => {
     const event = Webhook.verifyEventBody(rawBody, signature, webhookSecret);
     if (event.type === 'charge:created') {
       console.log('charge created');
+
+      // MOVE THIS CODE TO PENDING EVENT
+      const investment = await InvestModel.findOne({
+        chargeId: event.data.id,
+      });
+      if (!investment) {
+        const fAmount = event.data.pricing.local.amount.toLocaleString();
+        ejs.renderFile(
+          path.join(__dirname, '../views/email/investment-complete.ejs'),
+          {
+            config,
+            title: 'Investment completed',
+            amount: `$ ${fAmount}`,
+            firstName: event.data.metadata.customer_first_name,
+            propertyTitle: event.data.description,
+            id: event.data.id,
+          },
+          async (err, data) => {
+            if (err) {
+              console.log(err);
+            } else {
+              await sendEmail({
+                from: config.email.supportEmbed,
+                to: event.data.metadata.customer_email,
+                subject: 'Investment completed',
+                text: data,
+              });
+            }
+          }
+        );
+
+        const property = await properties.findById({
+          _id: event.data.metadata.property_id,
+        });
+        await InvestModel.create({
+          ...req.body,
+          incrementAmount: event.data.pricing.local.amount,
+          charge: event.data,
+          propertyId: event.data.metadata.property_id,
+          property: property,
+          ethToken: event.data.metadata.ethToken,
+          amount: event.data.pricing.local.amount,
+          user: event.data.metadata.customer_id,
+          chargeId: event.data.id,
+          chargeCode: event.data.code,
+          status: 'pending',
+        });
+      } else {
+        console.log(
+          'Payment was successful and investment has been added to the database'
+        );
+      }
     }
     if (event.type === 'charge:pending') {
-      console.log('charge is pending...');
-    }
-    if (event.type === 'charge:confirmed') {
-      console.log('charge confirmed');
+      console.log('charge pending');
 
       const investment = await InvestModel.findOne({
         chargeId: event.data.id,
@@ -162,12 +240,13 @@ const paymentHandler = async (req, res) => {
           ...req.body,
           incrementAmount: event.data.pricing.local.amount,
           charge: event.data,
-          property: event.data.metadata.property_id,
+          property: event.data.metadata.property,
           ethToken: event.data.metadata.ethToken,
           amount: event.data.pricing.local.amount,
           user: event.data.metadata.customer_id,
           chargeId: event.data.id,
           chargeCode: event.data.code,
+          status: 'pending',
         });
       } else {
         console.log(
@@ -175,6 +254,40 @@ const paymentHandler = async (req, res) => {
         );
       }
     }
+    if (event.type === 'charge:confirmed') {
+      console.log('charge is confirmed...');
+      const investments = await InvestModel.find({
+        chargeId: event.data.id,
+      });
+
+      const pendingInvestment = investments.find((i) => i.status === 'pending');
+      if (pendingInvestment) {
+        const fAmount = event.data.pricing.local.amount.toLocaleString();
+        ejs.renderFile(
+          path.join(__dirname, '../views/email/investment-complete.ejs'),
+          {
+            config,
+            title: 'Investment completed',
+            amount: `$ ${fAmount}`,
+            firstName: event.data.metadata.customer_first_name,
+            propertyTitle: event.data.description,
+            id: event.data.id,
+          }
+        );
+
+        await InvestModel.findOneAndUpdate(
+          { _id: pendingInvestment._id },
+          {
+            status: 'success',
+          }
+        );
+      } else {
+        console.log(
+          'Payment was successful and investment has been added to the database'
+        );
+      }
+    }
+
     if (event.type === 'charge:failed') {
       console.log('charge failed');
     }
@@ -199,4 +312,5 @@ module.exports = {
   updateInvestment,
   successInvestment,
   paymentHandler,
+  adminUpdate,
 };

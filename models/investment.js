@@ -47,15 +47,25 @@ const InvestmentSchema = new Schema({
   chargeId: {
     type: String,
   },
-});
-
-InvestmentSchema.pre('save', function (next) {
-  const now = new Date();
-  this.createdAt = now;
-  if (!this.createdAt) {
-    this.createdAt = now;
-  }
-  next();
+  status: {
+    type: String,
+    enum: ['pending', 'success'],
+    default: 'pending',
+  },
+  topUpInterval: {
+    type: String,
+  },
+  duration: {
+    type: String,
+    enum: ['Monthly', 'Weekly', 'Daily', 'Hourly', 'Every 30 Minutes'],
+    default: 'Monthly',
+  },
+  minimumRoi: {
+    type: Number,
+  },
+  minimumReturn: {
+    type: Number,
+  },
 });
 
 module.exports = mongoose.model('Investment', InvestmentSchema);

@@ -10,7 +10,7 @@ const {
 const auth = require('../middlewares/authentication');
 
 router.route('/').get(auth, getAllInvestment).post(auth, createInvestment);
-router.route('/data/:id').get(getSingleInvestment);
+router.route('/data/:id').get(auth, getSingleInvestment);
 router.route('/update-investment/:id').patch(updateInvestment);
 router.route('/payment-handler').post(paymentHandler);
 

@@ -11,6 +11,8 @@ const path = require('path');
 const config = require('./config');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
+const axios = require('axios');
+const { StatusCodes } = require('http-status-codes');
 
 const app = express();
 const authRouter = require('./routes/auth');
@@ -74,6 +76,24 @@ app.get('/', (req, res) => {
   );
 });
 
+app.use('/api/v1/static-investments', (req, res) => {
+  axios
+    .get(process.env.INVESTMENTS, {
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json;charset=UTF-8',
+      },
+    })
+    .then(({ data }) => {
+      res.status(StatusCodes.OK).json(data);
+    })
+    .catch((err) => {
+      res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ msg: 'bad request', error: err });
+    });
+});
+
 app.use(NotFound);
 app.use(errorHandlerMiddleware);
 
@@ -81,7 +101,7 @@ const PORT = process.env.PORT || 4000;
 
 const start = async () => {
   try {
-    await connectDb(process.env.MONGODB_URI);
+    await connectDb(process.env.MONGO_AFFILIATE);
 
     app.listen(PORT, () => {
       console.log(`Server is running at http://localhost:${PORT}`);

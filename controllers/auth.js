@@ -18,30 +18,28 @@ const jwt = require('jsonwebtoken');
 // USER REGISTRATION CONTROLLER
 const register = async (req, res) => {
   // Check if user already exists
-  const { email, role, firstName } = req.body;
+  const { email, role, firstName, lastName } = req.body;
 
   const oldUser = await User.findOne({ email });
   if (oldUser) {
     throw new BadRequestError('Another user with this email already exists.');
   }
 
-  const { website, address } = config;
-
   const uniqueId = shortid.generate();
   const result = await User.create({
     ...req.body,
     referralCode: uniqueId,
+    firstName: firstName,
+    lastName: lastName,
   });
-  const verificationToken = result.generateVerificationToken();
-  const url = `${config.website}/auth/verify/${verificationToken}`;
   const token = result.createJWT();
 
   ejs.renderFile(
-    path.join(__dirname, '../views/email/verify.ejs'),
+    path.join(__dirname, '../views/email/welcome.ejs'),
     {
-      config: config,
-      title: 'Verify your email',
-      url,
+      config,
+      title: 'Welcome to our Referral program',
+      firstName: firstName,
     },
     async (err, data) => {
       if (err) {
@@ -50,7 +48,7 @@ const register = async (req, res) => {
         await sendEmail({
           from: `Lemox Support <support@lemox.co>`,
           to: email,
-          subject: 'Verify your email',
+          subject: 'Welcome to our Referral program',
           text: data,
         });
       }

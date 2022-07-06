@@ -1,7 +1,6 @@
 const config = {};
 
 config.website = process.env.HOST;
-// config.website = 'http://www.lemox.co';
 
 config.web = {};
 config.email = {};

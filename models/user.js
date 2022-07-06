@@ -17,15 +17,12 @@ const UserSchema = new mongoose.Schema(
     },
     country: {
       type: String,
-      required: [true, 'Please provide country'],
     },
     state: {
       type: String,
-      required: [true, 'Please provide state'],
     },
     dateOfBirth: {
       type: String,
-      required: [true, 'Please provide your date of birth'],
     },
     email: {
       type: String,
@@ -38,8 +35,7 @@ const UserSchema = new mongoose.Schema(
     },
     profilePic: {
       type: String,
-      default:
-        'https://avatars.dicebear.com/api/male/avataaars.svg',
+      default: 'https://avatars.dicebear.com/api/male/avataaars.svg',
     },
     password: {
       type: String,
@@ -48,20 +44,16 @@ const UserSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ['investor', 'admin'],
-      default: 'investor',
+      enum: ['investor', 'admin', 'affiliate'],
+      default: 'affiliate',
       required: [true, 'Please specify role of user'],
     },
-    earnings: {
-      type: Number,
-      default: 0.0,
-    },
+
     tel: {
       type: String,
       minLength: 10,
       maxLength: 11,
       trim: true,
-      required: [true, 'Please provide phone number'],
     },
     verified: {
       type: Boolean,
@@ -71,9 +63,6 @@ const UserSchema = new mongoose.Schema(
     referralCode: {
       type: String,
       default: shortid.generate,
-    },
-    referredBy: {
-      type: String,
     },
     passwordResetToken: String,
     passwordResetExpire: Date,

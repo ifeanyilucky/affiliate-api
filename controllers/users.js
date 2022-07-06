@@ -3,7 +3,7 @@ const { StatusCodes } = require('http-status-codes');
 const { NotFoundError } = require('../errors');
 
 const getUsers = async (req, res) => {
-  const users = await User.find({ role: 'investor' })
+  const users = await User.find()
     .select('-password -passwordResetToken -passwordResetExpire')
     .sort({ createdAt: -1 });
   res.status(StatusCodes.OK).json(users);

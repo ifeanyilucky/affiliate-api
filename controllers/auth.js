@@ -46,7 +46,7 @@ const register = async (req, res) => {
         console.log(err);
       } else {
         await sendEmail({
-          from: `Lemox Support <support@lemox.co>`,
+          from: `Lemox Support <support@lemox.io>`,
           to: email,
           subject: 'Welcome to our Referral program',
           text: data,
@@ -85,7 +85,7 @@ const login = async (req, res) => {
           console.log(err);
         } else {
           await sendEmail({
-            from: `Lemox Support <support@lemox.co>`,
+            from: `Lemox Support <support@lemox.io>`,
             to: email,
             subject: 'Verify your email',
             text: data,

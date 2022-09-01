@@ -16,7 +16,6 @@ const { StatusCodes } = require('http-status-codes');
 
 const app = express();
 const authRouter = require('./routes/auth');
-const propertyRouter = require('./routes/property');
 const withdrawalRouter = require('./routes/withdrawal');
 const userRouter = require('./routes/users');
 const staticRouter = require('./routes/static');
@@ -56,7 +55,6 @@ app.use(xss());
 
 // ROUTES
 app.use('/api/v1/auth/', authRouter);
-app.use('/api/v1/properties', propertyRouter);
 app.use('/api/v1/withdrawal', withdrawalRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/static', staticRouter);
